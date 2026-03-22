@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { KnowledgeItem, ChatMessage, FolderItem, ThemeMode } from '../types';
+import { KnowledgeItem, ChatMessage, FolderItem, ThemeMode, ReviewDeck, ReviewCard } from '../types';
 import { mockKnowledgeBase } from '../mock/data';
 import { Language } from '../i18n';
 
@@ -18,6 +18,10 @@ interface StoreState {
   activeFolderId: string | null;
   pinnedCards: Array<{ id: string; title: string; summary: string }>;
   smoothCursor: boolean;
+  knowledgeTypeFilter: 'all' | 'note' | 'concept';
+  reviewDecks: ReviewDeck[];
+  reviewCards: ReviewCard[];
+  activeReviewDeckId: string | null;
 
   // Actions
   addKnowledge: (item: KnowledgeItem) => void;
@@ -45,6 +49,13 @@ interface StoreState {
   pinCard: (card: { id: string; title: string; summary: string }) => void;
   unpinCard: (id: string) => void;
   setSmoothCursor: (enabled: boolean) => void;
+  setKnowledgeTypeFilter: (filter: 'all' | 'note' | 'concept') => void;
+  addReviewDeck: (deck: ReviewDeck) => void;
+  deleteReviewDeck: (id: string) => void;
+  setActiveReviewDeckId: (id: string | null) => void;
+  addReviewCard: (card: ReviewCard) => void;
+  updateReviewCard: (id: string, updates: Partial<ReviewCard>) => void;
+  deleteReviewCard: (id: string) => void;
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -64,6 +75,10 @@ export const useStore = create<StoreState>((set) => ({
   activeFolderId: null,
   pinnedCards: [],
   smoothCursor: localStorage.getItem('smoothCursor') === 'true',
+  knowledgeTypeFilter: 'all',
+  reviewDecks: JSON.parse(localStorage.getItem('reviewDecks') || '[]'),
+  reviewCards: JSON.parse(localStorage.getItem('reviewCards') || '[]'),
+  activeReviewDeckId: null,
 
   addKnowledge: (item) => set((state) => ({ knowledgeList: [item, ...state.knowledgeList] })),
   updateKnowledge: (id, updates) => set((state) => ({
@@ -155,5 +170,34 @@ export const useStore = create<StoreState>((set) => ({
   setSmoothCursor: (enabled) => {
     localStorage.setItem('smoothCursor', String(enabled));
     return set({ smoothCursor: enabled });
-  }
+  },
+  setKnowledgeTypeFilter: (filter) => set({ knowledgeTypeFilter: filter }),
+  addReviewDeck: (deck) => set((state) => {
+    const newDecks = [...state.reviewDecks, deck];
+    localStorage.setItem('reviewDecks', JSON.stringify(newDecks));
+    return { reviewDecks: newDecks };
+  }),
+  deleteReviewDeck: (id) => set((state) => {
+    const newDecks = state.reviewDecks.filter(d => d.id !== id);
+    const newCards = state.reviewCards.filter(c => c.deckId !== id);
+    localStorage.setItem('reviewDecks', JSON.stringify(newDecks));
+    localStorage.setItem('reviewCards', JSON.stringify(newCards));
+    return { reviewDecks: newDecks, reviewCards: newCards };
+  }),
+  setActiveReviewDeckId: (id) => set({ activeReviewDeckId: id }),
+  addReviewCard: (card) => set((state) => {
+    const newCards = [...state.reviewCards, card];
+    localStorage.setItem('reviewCards', JSON.stringify(newCards));
+    return { reviewCards: newCards };
+  }),
+  updateReviewCard: (id, updates) => set((state) => {
+    const newCards = state.reviewCards.map(c => c.id === id ? { ...c, ...updates } : c);
+    localStorage.setItem('reviewCards', JSON.stringify(newCards));
+    return { reviewCards: newCards };
+  }),
+  deleteReviewCard: (id) => set((state) => {
+    const newCards = state.reviewCards.filter(c => c.id !== id);
+    localStorage.setItem('reviewCards', JSON.stringify(newCards));
+    return { reviewCards: newCards };
+  })
 }));

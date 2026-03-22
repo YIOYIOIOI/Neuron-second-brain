@@ -3,18 +3,19 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download } from 'lucide-react';
+import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download, BookOpen } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { BlockEditor } from '../components/BlockEditor';
 import { FloatingChat } from '../components/FloatingChat';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
+import { ReviewCard } from '../types';
 import toast from 'react-hot-toast';
 
 export default function Detail() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { knowledgeList, updateKnowledge, incrementAccessCount } = useStore();
+  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard } = useStore();
   const { t, language } = useTranslation();
 
   const item = knowledgeList.find((n) => n.id === id);
@@ -30,6 +31,10 @@ export default function Detail() {
   const [isLoading, setIsLoading] = useState(true);
   const [showRefSearch, setShowRefSearch] = useState(false);
   const [refSearchQuery, setRefSearchQuery] = useState('');
+  const [showReviewCardModal, setShowReviewCardModal] = useState(false);
+  const [reviewQuestion, setReviewQuestion] = useState('');
+  const [reviewAnswer, setReviewAnswer] = useState('');
+  const [selectedDeckId, setSelectedDeckId] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -162,6 +167,36 @@ export default function Detail() {
     }
   };
 
+  const handleCreateReviewCard = () => {
+    if (!reviewQuestion.trim() || !reviewAnswer.trim() || !selectedDeckId || !id) {
+      toast.error(language === 'zh' ? '请填写完整信息' : 'Please fill in all fields');
+      return;
+    }
+
+    const newCard: ReviewCard = {
+      id: crypto.randomUUID(),
+      question: reviewQuestion.trim(),
+      answer: reviewAnswer.trim(),
+      sourceKnowledgeId: id,
+      deckId: selectedDeckId,
+      createdAt: new Date().toISOString(),
+      nextReviewDate: new Date().toISOString(),
+      reviewCount: 0,
+      easeFactor: 2.5
+    };
+
+    addReviewCard(newCard);
+    setShowReviewCardModal(false);
+    setReviewQuestion('');
+    setReviewAnswer('');
+    setSelectedDeckId('');
+    toast.success(language === 'zh' ? '复习卡片已创建' : 'Review card created');
+  };
+      setIsEditing(false);
+      toast.success(t('saveSuccess'));
+    }
+  };
+
   const handleAddTag = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && newTag.trim()) {
       e.preventDefault();
@@ -238,12 +273,20 @@ export default function Detail() {
             <Download className="w-4 h-4" /> {t('export')}
           </button>
           {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <Edit2 className="w-4 h-4" /> {t('edit')}
-            </button>
+            <>
+              <button
+                onClick={() => setShowReviewCardModal(true)}
+                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
+              </button>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <Edit2 className="w-4 h-4" /> {t('edit')}
+              </button>
+            </>
           ) : (
             <>
               <button
@@ -539,6 +582,80 @@ export default function Detail() {
         } : undefined}
       />
       <PinnedCardsSidebar />
+
+      {/* Review Card Modal */}
+      <AnimatePresence>
+        {showReviewCardModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+            onClick={() => setShowReviewCardModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-bg-primary border border-border-subtle rounded-xl p-6 w-full max-w-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-medium mb-4">{t('createReviewCard')}</h2>
+
+              <div className="mb-4">
+                <label className="block text-sm text-text-secondary mb-2">{t('selectDeck')}</label>
+                <select
+                  value={selectedDeckId}
+                  onChange={(e) => setSelectedDeckId(e.target.value)}
+                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary"
+                >
+                  <option value="">{language === 'zh' ? '选择复习库' : 'Select a deck'}</option>
+                  {reviewDecks.map(deck => (
+                    <option key={deck.id} value={deck.id}>{deck.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm text-text-secondary mb-2">{t('reviewQuestion')}</label>
+                <textarea
+                  value={reviewQuestion}
+                  onChange={(e) => setReviewQuestion(e.target.value)}
+                  placeholder={language === 'zh' ? '输入问题...' : 'Enter question...'}
+                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary resize-none"
+                  rows={3}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm text-text-secondary mb-2">{t('reviewAnswer')}</label>
+                <textarea
+                  value={reviewAnswer}
+                  onChange={(e) => setReviewAnswer(e.target.value)}
+                  placeholder={language === 'zh' ? '输入答案...' : 'Enter answer...'}
+                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary resize-none"
+                  rows={4}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowReviewCardModal(false)}
+                  className="flex-1 px-4 py-2 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={handleCreateReviewCard}
+                  className="flex-1 px-4 py-2 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors"
+                >
+                  {language === 'zh' ? '创建' : 'Create'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

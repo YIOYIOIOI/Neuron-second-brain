@@ -92,6 +92,11 @@ export const i18n = {
     recentTags: 'Recent',
     noTagsFound: 'No tags found',
     noPinnedCards: 'No pinned cards yet',
+    addToReviewDeck: 'Add to Review Deck',
+    createReviewCard: 'Create Review Card',
+    reviewQuestion: 'Question',
+    reviewAnswer: 'Answer',
+    selectDeck: 'Select Deck',
   },
   zh: {
     dashboard: '知识库',
@@ -186,6 +191,11 @@ export const i18n = {
     recentTags: '最近',
     noTagsFound: '未找到标签',
     noPinnedCards: '暂无固定卡片',
+    addToReviewDeck: '添加到复习库',
+    createReviewCard: '创建复习卡片',
+    reviewQuestion: '问题',
+    reviewAnswer: '答案',
+    selectDeck: '选择复习库',
   }
 };
 

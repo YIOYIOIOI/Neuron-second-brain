@@ -31,6 +31,7 @@ export interface KnowledgeItem {
   accessCount?: number;
   isMilestone?: boolean;
   folderId?: string | null;
+  type?: 'note' | 'concept';
 }
 
 export interface ChatMessage {
@@ -38,6 +39,26 @@ export interface ChatMessage {
   role: 'user' | 'ai';
   content: string;
   relatedKnowledgeIds?: string[];
+}
+
+export interface ReviewCard {
+  id: string;
+  question: string;
+  answer: string;
+  sourceKnowledgeId: string;
+  deckId: string;
+  createdAt: string;
+  nextReviewDate: string;
+  reviewCount: number;
+  easeFactor: number;
+}
+
+export interface ReviewDeck {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  cardCount: number;
 }
 
 export type ThemeMode = 'light' | 'dark' | 'system';

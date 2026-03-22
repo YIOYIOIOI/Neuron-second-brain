@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { SearchBar } from '../components/SearchBar';
 import { TagFilter } from '../components/TagFilter';
+import { TypeFilter } from '../components/TypeFilter';
 import { FolderSidebar } from '../components/FolderSidebar';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 import { useTranslation } from '../hooks/useTranslation';
@@ -13,7 +14,7 @@ import { motion, AnimatePresence } from 'motion/react';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Dashboard() {
-  const { knowledgeList, searchQuery, selectedTags, activeFolderId, setActiveFolderId, folders, sidebarCollapsed } = useStore();
+  const { knowledgeList, searchQuery, selectedTags, activeFolderId, setActiveFolderId, folders, sidebarCollapsed, knowledgeTypeFilter } = useStore();
   const { t, language } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +39,12 @@ export default function Dashboard() {
         if (item.folderId !== activeFolderId) return false;
       }
 
+      // Type filter
+      if (knowledgeTypeFilter !== 'all') {
+        const itemType = item.type || 'note';
+        if (itemType !== knowledgeTypeFilter) return false;
+      }
+
       const matchesSearch = searchQuery === '' ||
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -48,7 +55,7 @@ export default function Dashboard() {
 
       return matchesSearch && matchesTags;
     });
-  }, [knowledgeList, searchQuery, selectedTags, activeFolderId]);
+  }, [knowledgeList, searchQuery, selectedTags, activeFolderId, knowledgeTypeFilter]);
 
   useEffect(() => {
     if (isLoading || !containerRef.current || filteredList.length === 0) return;
@@ -174,6 +181,7 @@ export default function Dashboard() {
             <div className="w-full md:w-auto flex flex-col items-start md:items-end">
               <SearchBar />
               <TagFilter />
+              <TypeFilter />
             </div>
           </header>
 
