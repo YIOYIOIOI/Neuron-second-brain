@@ -192,10 +192,6 @@ export default function Detail() {
     setSelectedDeckId('');
     toast.success(language === 'zh' ? '复习卡片已创建' : 'Review card created');
   };
-      setIsEditing(false);
-      toast.success(t('saveSuccess'));
-    }
-  };
 
   const handleAddTag = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && newTag.trim()) {
