@@ -65,10 +65,10 @@ export function FloatingChat({ contextKnowledge }: FloatingChatProps) {
         ? `让我为你解释「${context.title}」：\n\n${context.summary}\n\n简而言之，这是一个重要的概念，它涉及到...你还有什么想了解的吗？`
         : `Let me explain "${context.title}":\n\n${context.summary}\n\nIn short, this is an important concept that relates to... Do you have any other questions?`;
     } else if (userMessage.toLowerCase().includes('related') || userMessage.toLowerCase().includes('相关')) {
+      const fullContext = knowledgeList.find(k => k.id === context.id);
       const related = knowledgeList
-        .filter(k => k.id !== context.id && k.tags.some(t => context.tags?.includes(t)))
+        .filter(k => k.id !== context.id && k.tags.some(t => fullContext?.tags?.includes(t)))
         .slice(0, 3);
-
       if (related.length > 0) {
         response = language === 'zh'
           ? `与「${context.title}」相关的知识：\n\n${related.map(r => `• **${r.title}**: ${r.summary}`).join('\n\n')}`

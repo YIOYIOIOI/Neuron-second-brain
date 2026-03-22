@@ -6,7 +6,6 @@ import { useTranslation } from '../hooks/useTranslation';
 import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download, BookOpen, Pin, PinOff } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { BlockEditor } from '../components/BlockEditor';
-import { FloatingChat } from '../components/FloatingChat';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 import { ReviewCard } from '../types';
 import toast from 'react-hot-toast';
@@ -601,15 +600,6 @@ export default function Detail() {
         </motion.section>
       )}
 
-      {/* Floating AI Chat */}
-      <FloatingChat
-        contextKnowledge={item ? {
-          id: item.id,
-          title: item.title,
-          content: item.content,
-          summary: item.summary
-        } : undefined}
-      />
       <PinnedCardsSidebar />
 
       {/* Review Card Modal */}

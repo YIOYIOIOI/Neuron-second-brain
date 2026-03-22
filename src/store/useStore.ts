@@ -19,10 +19,18 @@ interface StoreState {
   pinnedCards: Array<{ id: string; title: string; summary: string }>;
   smoothCursor: boolean;
   knowledgeTypeFilter: 'all' | 'note' | 'concept';
+  sortBy: 'recent' | 'oldest' | 'title-asc' | 'title-desc';
   reviewDecks: ReviewDeck[];
   reviewCards: ReviewCard[];
   activeReviewDeckId: string | null;
   reviewCompletionState: Record<string, { completed: boolean; date: string }>;
+
+  isAgentOpen: boolean;
+  isAgentSidebar: boolean;
+  isAgentSidebarCollapsed: boolean;
+  setAgentOpen: (open: boolean) => void;
+  setAgentSidebar: (isSidebar: boolean) => void;
+  setAgentSidebarCollapsed: (collapsed: boolean) => void;
 
   // Actions
   addKnowledge: (item: KnowledgeItem) => void;
@@ -35,7 +43,7 @@ interface StoreState {
   login: (username: string) => void;
   logout: () => void;
   setLanguage: (lang: Language) => void;
-  setEditorState: (state: { content: string; isOpen: boolean }) => void;
+  setEditorState: (state: string) => void;
   toggleSelectedKnowledge: (id: string) => void;
   toggleSidebar: () => void;
   importKnowledge: (items: KnowledgeItem[]) => void;
@@ -51,6 +59,7 @@ interface StoreState {
   unpinCard: (id: string) => void;
   setSmoothCursor: (enabled: boolean) => void;
   setKnowledgeTypeFilter: (filter: 'all' | 'note' | 'concept') => void;
+  setSortBy: (sort: 'recent' | 'oldest' | 'title-asc' | 'title-desc') => void;
   addReviewDeck: (deck: ReviewDeck) => void;
   deleteReviewDeck: (id: string) => void;
   setActiveReviewDeckId: (id: string | null) => void;
@@ -79,10 +88,18 @@ export const useStore = create<StoreState>((set) => ({
   pinnedCards: [],
   smoothCursor: localStorage.getItem('smoothCursor') === 'true',
   knowledgeTypeFilter: 'all',
+  sortBy: 'recent',
   reviewDecks: JSON.parse(localStorage.getItem('reviewDecks') || '[]'),
   reviewCards: JSON.parse(localStorage.getItem('reviewCards') || '[]'),
   activeReviewDeckId: null,
   reviewCompletionState: JSON.parse(localStorage.getItem('reviewCompletionState') || '{}'),
+
+  isAgentOpen: false,
+  isAgentSidebar: false,
+  isAgentSidebarCollapsed: false,
+  setAgentOpen: (open) => set({ isAgentOpen: open }),
+  setAgentSidebar: (isSidebar) => set({ isAgentSidebar: isSidebar }),
+  setAgentSidebarCollapsed: (collapsed) => set({ isAgentSidebarCollapsed: collapsed }),
 
   addKnowledge: (item) => set((state) => ({ knowledgeList: [item, ...state.knowledgeList] })),
   updateKnowledge: (id, updates) => set((state) => ({
@@ -176,6 +193,7 @@ export const useStore = create<StoreState>((set) => ({
     return set({ smoothCursor: enabled });
   },
   setKnowledgeTypeFilter: (filter) => set({ knowledgeTypeFilter: filter }),
+  setSortBy: (sort) => set({ sortBy: sort }),
   addReviewDeck: (deck) => set((state) => {
     const newDecks = [...state.reviewDecks, deck];
     localStorage.setItem('reviewDecks', JSON.stringify(newDecks));

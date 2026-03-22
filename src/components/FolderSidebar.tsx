@@ -182,7 +182,8 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
   const renderFolder = (folder: FolderItem, depth: number = 0) => {
     const isExpanded = expandedFolders.has(folder.id);
     const childFolders = getChildFolders(folder.id);
-    const itemCount = getItemsInFolder(folder.id).length;
+    const folderItems = getItemsInFolder(folder.id);
+    const itemCount = folderItems.length;
     const isActive = activeFolderId === folder.id;
     const isRenaming = renamingId === folder.id;
     const isDragOver = dragOverFolderId === folder.id;
@@ -293,6 +294,17 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
               className="overflow-hidden"
             >
               {childFolders.map(child => renderFolder(child, depth + 1))}
+              {folderItems.map(item => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-bg-secondary transition-colors text-sm"
+                  style={{ paddingLeft: `${(depth + 1) * 12 + 8}px` }}
+                  onClick={() => window.location.href = `/note/${item.id}`}
+                >
+                  <File className="w-4 h-4 text-text-secondary shrink-0" />
+                  <span className="flex-1 truncate text-xs">{item.title}</span>
+                </div>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>

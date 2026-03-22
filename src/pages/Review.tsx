@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
-import { Plus, Trash2, BookOpen, ArrowRight, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight, Pin } from 'lucide-react';
+import { Plus, Trash2, BookOpen, ArrowRight, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight, Pin, Search, ChevronDown, X, MoreHorizontal } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { ReviewDeck, ReviewCard } from '../types';
@@ -242,7 +242,7 @@ export default function Review() {
                   setActiveReviewDeckId(deck.id);
                   setCurrentCardIndex(0);
                   setIsFlipped(false);
-                  setReviewCompleted(false);
+                  setReviewCompleted(deck.id, false);
                   setExpandedDeckId(null);
                 }}
                 className={`w-full p-3 rounded-lg mb-2 text-left transition-all relative overflow-hidden group ${
@@ -281,8 +281,21 @@ export default function Review() {
                 </motion.div>
 
                 {/* Action buttons revealed on expand */}
-                {!sidebarCollapsed && (
-                  <div className="absolute right-0 top-0 h-full flex items-center gap-1 pr-3 bg-bg-primary">
+                {!sidebarCollapsed && expandedDeckId === deck.id && (
+                  <div className="absolute right-0 top-0 h-full flex items-center gap-1 pr-3 bg-gradient-to-l from-bg-primary via-bg-primary to-transparent pl-8">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setReviewMode(true);
+                        setCurrentCardIndex(0);
+                        setIsFlipped(false);
+                        setExpandedDeckId(null);
+                      }}
+                      className="p-2 hover:bg-accent/10 rounded transition-colors"
+                      title={language === 'zh' ? '开始复习' : 'Start review'}
+                    >
+                      <BookOpen className="w-4 h-4 text-accent" />
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -294,17 +307,6 @@ export default function Review() {
                       title={language === 'zh' ? '添加卡片' : 'Add card'}
                     >
                       <Plus className="w-4 h-4 text-accent" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Pin functionality placeholder
-                        setExpandedDeckId(null);
-                      }}
-                      className="p-2 hover:bg-accent/10 rounded transition-colors"
-                      title={language === 'zh' ? '置顶' : 'Pin'}
-                    >
-                      <Pin className="w-4 h-4 text-text-secondary" />
                     </button>
                     <button
                       onClick={(e) => {
@@ -538,69 +540,121 @@ export default function Review() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-bg-primary/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => setShowAddCard(false)}
           >
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-bg-primary border border-border-subtle rounded-xl p-6 w-full max-w-md"
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+              className="bg-bg-primary border border-border-subtle rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-medium mb-4">{language === 'zh' ? '添加复习卡片' : 'Add Review Card'}</h2>
-
-              <div className="mb-4">
-                <label className="block text-sm text-text-secondary mb-2">{language === 'zh' ? '从知识库选择（可选）' : 'Select from Knowledge (Optional)'}</label>
-                <select
-                  value={selectedKnowledgeId}
-                  onChange={(e) => {
-                    setSelectedKnowledgeId(e.target.value);
-                    if (e.target.value) {
-                      const knowledge = knowledgeList.find(k => k.id === e.target.value);
-                      if (knowledge) {
-                        setNewQuestion(knowledge.title);
-                        setNewAnswer(knowledge.summary);
-                      }
-                    }
-                  }}
-                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary mb-3"
-                >
-                  <option value="">{language === 'zh' ? '手动输入' : 'Manual input'}</option>
-                  {knowledgeList.map(k => (
-                    <option key={k.id} value={k.id}>{k.title}</option>
-                  ))}
-                </select>
-              </div>
-
-              <input
-                type="text"
-                value={newQuestion}
-                onChange={(e) => setNewQuestion(e.target.value)}
-                placeholder={language === 'zh' ? '问题' : 'Question'}
-                className="w-full px-4 py-2 border border-border-subtle rounded-lg mb-3 focus:outline-none focus:border-text-primary"
-                autoFocus
-              />
-              <textarea
-                value={newAnswer}
-                onChange={(e) => setNewAnswer(e.target.value)}
-                placeholder={language === 'zh' ? '答案' : 'Answer'}
-                className="w-full px-4 py-2 border border-border-subtle rounded-lg mb-4 focus:outline-none focus:border-text-primary resize-none"
-                rows={4}
-              />
-              <div className="flex gap-3">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-border-subtle bg-bg-secondary/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                    <Plus className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-[17px] font-medium">{language === 'zh' ? '添加复习卡片' : 'Add Review Card'}</h2>
+                    <p className="text-xs text-text-secondary mt-0.5">{language === 'zh' ? '手动创建或从知识库选择' : 'Create manually or select from knowledge'}</p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowAddCard(false)}
-                  className="flex-1 px-4 py-2 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors"
+                  className="w-8 h-8 flex items-center justify-center hover:bg-border-subtle rounded-full transition-colors text-text-secondary hover:text-text-primary"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 flex flex-col gap-6">
+                
+                {/* Search Knowledge Base (Native Select) */}
+                <div className="space-y-2">
+                  <label className="text-[13px] font-medium text-text-secondary flex items-center gap-1.5 px-1">
+                    <Search className="w-3.5 h-3.5" />
+                    {language === 'zh' ? '从知识库选择（可选）' : 'Select from Knowledge (Optional)'}
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedKnowledgeId}
+                      onChange={(e) => {
+                        setSelectedKnowledgeId(e.target.value);
+                        if (e.target.value) {
+                          const knowledge = knowledgeList.find(k => k.id === e.target.value);
+                          if (knowledge) {
+                            setNewQuestion(knowledge.title);
+                            setNewAnswer(knowledge.summary);
+                          }
+                        } else {
+                          setNewQuestion('');
+                          setNewAnswer('');
+                        }
+                      }}
+                      className="w-full pl-4 pr-10 py-3 bg-bg-secondary/50 border border-border-subtle rounded-2xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 focus:bg-bg-primary transition-all text-[15px] appearance-none cursor-pointer"
+                    >
+                      <option value="">{language === 'zh' ? '手动输入新卡片...' : 'Manual input...'}</option>
+                      {knowledgeList.map(k => (
+                        <option key={k.id} value={k.id}>{k.title}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none opacity-50" />
+                  </div>
+                </div>
+
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-border-subtle to-transparent" />
+
+                {/* Manual Input Fields */}
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-medium text-text-secondary px-1">
+                      {language === 'zh' ? '正面（问题/概念）' : 'Front (Question/Concept)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={newQuestion}
+                      onChange={(e) => setNewQuestion(e.target.value)}
+                      placeholder={language === 'zh' ? '输入问题...' : 'Enter question...'}
+                      className="w-full px-4 py-3 bg-transparent border border-border-subtle rounded-2xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all text-[15px]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-medium text-text-secondary flex justify-between px-1">
+                      {language === 'zh' ? '背面（答案/解释）' : 'Back (Answer/Explanation)'}
+                      <span className="opacity-50 font-normal">{newAnswer.length} / 500</span>
+                    </label>
+                    <textarea
+                      value={newAnswer}
+                      onChange={(e) => setNewAnswer(e.target.value)}
+                      placeholder={language === 'zh' ? '输入详细解答...' : 'Enter detailed answer...'}
+                      className="w-full px-4 py-3 bg-transparent border border-border-subtle rounded-2xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all text-[15px] resize-none"
+                      rows={4}
+                      maxLength={500}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 bg-bg-secondary/50 border-t border-border-subtle flex justify-end gap-3 items-center">
+                <button
+                  onClick={() => setShowAddCard(false)}
+                  className="px-5 py-2.5 text-[14px] font-medium text-text-secondary hover:text-text-primary hover:bg-border-subtle/50 rounded-xl transition-colors"
                 >
                   {t('cancel')}
                 </button>
                 <button
                   onClick={handleAddCard}
                   disabled={(!newQuestion.trim() || !newAnswer.trim()) && !selectedKnowledgeId}
-                  className="flex-1 px-4 py-2 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors disabled:opacity-50"
+                  className="px-6 py-2.5 text-[14px] font-medium bg-text-primary text-bg-primary rounded-xl hover:bg-text-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
                 >
-                  {language === 'zh' ? '添加' : 'Add'}
+                  <Plus className="w-4 h-4" />
+                  {language === 'zh' ? '添加卡片' : 'Add Card'}
                 </button>
               </div>
             </motion.div>

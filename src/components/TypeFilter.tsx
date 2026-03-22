@@ -13,7 +13,7 @@ export function TypeFilter() {
   ];
 
   return (
-    <div className="flex gap-2 mt-2">
+    <div className="flex gap-2">
       {options.map(option => (
         <button
           key={option.value}

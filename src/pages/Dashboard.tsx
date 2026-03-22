@@ -6,6 +6,7 @@ import { KnowledgeCard } from '../components/KnowledgeCard';
 import { SearchBar } from '../components/SearchBar';
 import { TagFilter } from '../components/TagFilter';
 import { TypeFilter } from '../components/TypeFilter';
+import { SortFilter } from '../components/SortFilter';
 import { FolderSidebar } from '../components/FolderSidebar';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 import { useTranslation } from '../hooks/useTranslation';
@@ -14,7 +15,7 @@ import { motion, AnimatePresence } from 'motion/react';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Dashboard() {
-  const { knowledgeList, searchQuery, selectedTags, activeFolderId, setActiveFolderId, folders, sidebarCollapsed, knowledgeTypeFilter } = useStore();
+  const { knowledgeList, searchQuery, selectedTags, activeFolderId, setActiveFolderId, folders, sidebarCollapsed, knowledgeTypeFilter, sortBy } = useStore();
   const { t, language } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +56,22 @@ export default function Dashboard() {
 
       return matchesSearch && matchesTags;
     });
-  }, [knowledgeList, searchQuery, selectedTags, activeFolderId, knowledgeTypeFilter]);
+
+    // Apply sorting
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'title-asc':
+          return a.title.localeCompare(b.title);
+        case 'title-desc':
+          return b.title.localeCompare(a.title);
+        case 'recent':
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+  }, [knowledgeList, searchQuery, selectedTags, activeFolderId, knowledgeTypeFilter, sortBy]);
 
   useEffect(() => {
     if (isLoading || !containerRef.current || filteredList.length === 0) return;
@@ -132,15 +148,14 @@ export default function Dashboard() {
           {/* Toggle button - protruding outward on the right, vertically centered */}
           <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="absolute top-1/2 -translate-y-1/2 w-6 h-20 bg-bg-primary/98 backdrop-blur-md border border-border-subtle border-l-0 shadow-lg flex items-center justify-center hover:bg-bg-secondary transition-colors group"
+            className="absolute top-1/2 -translate-y-1/2 w-6 h-20 bg-bg-primary border border-border-subtle border-l-0 shadow-[4px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-bg-secondary transition-colors group z-10"
             style={{
-              right: '-24px',
+              right: 'calc(-24px + 1px)',
               borderTopRightRadius: '12px',
               borderBottomRightRadius: '12px',
               borderTopLeftRadius: 0,
               borderBottomLeftRadius: 0,
-            }}
-            title={showSidebar ? (language === 'zh' ? '收起' : 'Collapse') : (language === 'zh' ? '展开' : 'Expand')}
+            }}            title={showSidebar ? (language === 'zh' ? '收起' : 'Collapse') : (language === 'zh' ? '展开' : 'Expand')}
           >
             <motion.div
               animate={{ rotate: showSidebar ? 0 : 180 }}
@@ -181,9 +196,10 @@ export default function Dashboard() {
             <div className="w-full md:w-auto flex flex-col items-start md:items-end">
               <SearchBar />
               <TagFilter />
-              <TypeFilter />
-            </div>
-          </header>
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <TypeFilter />
+                <SortFilter />
+              </div>            </div>          </header>
 
           {isLoading ? (
             <motion.div

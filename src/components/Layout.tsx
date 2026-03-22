@@ -9,7 +9,7 @@ import { Toaster } from 'react-hot-toast';
 
 export function Layout() {
   const location = useLocation();
-  const { user, sidebarCollapsed } = useStore();
+  const { user, sidebarCollapsed, isAgentOpen, isAgentSidebar, isAgentSidebarCollapsed } = useStore();
 
   // Initialize theme
   useTheme();
@@ -18,6 +18,11 @@ export function Layout() {
     return <Navigate to="/login" replace />;
   }
 
+  const isWritingMode = location.pathname === '/writing';
+
+  const leftWidth = user ? (sidebarCollapsed ? 64 : 220) : 0;
+  const rightWidth = user && isAgentOpen && isAgentSidebar ? (isAgentSidebarCollapsed ? 0 : 300) : 0;
+
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary selection:bg-text-primary selection:text-bg-primary md:cursor-none">
       <CustomCursor />
@@ -25,13 +30,12 @@ export function Layout() {
       {user && <TopBar />}
       <main
         key={location.pathname}
-        className="min-h-screen pt-14 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        className="min-h-screen pt-14 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"       
         style={{
-          marginLeft: user ? (sidebarCollapsed ? '64px' : '220px') : '0',
-          width: user ? (sidebarCollapsed ? 'calc(100% - 64px)' : 'calc(100% - 220px)') : '100%'
+          marginLeft: `${leftWidth}px`,
+          width: `calc(100% - ${leftWidth + rightWidth}px)`
         }}
-      >
-        <Outlet />
+      >        <Outlet />
       </main>
       <AgentChat />
       <Toaster
