@@ -143,9 +143,9 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
       <AnimatePresence>
         {isAgentOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            initial={isAgentSidebar ? { opacity: 1, x: 400 } : { opacity: 0, scale: 0.9 }}
+            animate={isAgentSidebar ? { opacity: 1, x: 0 } : { opacity: 1, scale: 1 }}
+            exit={isAgentSidebar ? { opacity: 1, x: 400 } : { opacity: 0, scale: 0.9 }}
             style={!isAgentSidebar ? { transform: `translate(${position.x}px, ${position.y}px)` } : {}}
             className={cn(
               "bg-bg-primary shadow-2xl flex flex-col transition-transform duration-300",
