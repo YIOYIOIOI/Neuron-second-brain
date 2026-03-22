@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../hooks/useTranslation';
 import { useStore } from '../store/useStore';
@@ -472,8 +472,11 @@ export default function LandingNew() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+              className={`text-xl md:text-2xl leading-loose font-light ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'} relative p-8`}
+              style={{ fontFamily: "'Noto Serif SC', serif" }}
             >
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-20" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-20" />
               在一切结构与逻辑形成之前，思考往往诞生于最安静的时刻。那些尚未成型的念头，以零散、模糊甚至略显混乱的状态出现，它们没有明确的归属，也没有清晰的边界，却蕴含着最原始的创造力。<br/><br/>
               你不会在一开始就拥有答案，你只是在记录一些片段——一句话、一个灵感、一个尚未完成的推论。<br/><br/>
               个人知识库的意义，正是在这一刻开始显现：它不是为了整理已经清晰的内容，而是为了承接那些尚未被理解的想法，让它们不被遗忘，并等待被进一步发展。
@@ -499,16 +502,39 @@ export default function LandingNew() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+              className={`text-xl md:text-2xl leading-loose font-light ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'} relative p-8`}
+              style={{ fontFamily: "'Noto Serif SC', serif" }}
             >
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-20" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-20" />
               当记录逐渐积累，原本孤立的内容开始产生联系。不同时间、不同语境下产生的想法，在回顾中彼此呼应，形成隐约可见的结构。<br/><br/>
               你会开始发现：一些观点其实来源于同一个问题，一些笔记之间存在潜在的关联，而某些看似无关的内容，正在逐渐指向同一个方向。<br/><br/>
               这种连接并不是刻意构建的结果，而是在持续记录与回看中自然浮现的关系网络。<br/><br/>
               知识不再是孤立的片段，而开始形成脉络。而知识库的价值，也从"记录工具"转变为关系的发现系统。
             </motion.div>
-            <div className="max-w-4xl text-right">
+            <div className="max-w-4xl text-right relative">
+              <motion.div
+                initial={{ scaleY: 0 }}
+                whileInView={{ scaleY: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-[2px] h-[50vh] origin-bottom"
+                style={{
+                  background: isDark
+                    ? 'linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.4))'
+                    : 'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.4) 30%, rgba(0,0,0,0.4))'
+                }}
+              />
               <div className="text-xs tracking-[0.3em] uppercase opacity-40 mb-4">[ 02 ] CONNECTION</div>
               <h2 className="text-6xl md:text-8xl font-black mb-6">连接自然形成</h2>
+              <div
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[2px] h-[50vh]"
+                style={{
+                  background: isDark
+                    ? 'linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.4) 70%, rgba(255,255,255,0))'
+                    : 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.4) 70%, rgba(0,0,0,0))'
+                }}
+              />
               <p className={`text-xl md:text-2xl font-light mb-8 ${isDark ? 'text-[#b0b0b0]' : 'text-[#525252]'}`}>
                 Connections form naturally between thoughts.
               </p>
@@ -538,7 +564,12 @@ export default function LandingNew() {
           >
             <div className="max-w-4xl">
               <div className="text-xs tracking-[0.3em] uppercase opacity-40 mb-4">[ 03 ] FLOW</div>
-              <h2 className="text-4xl md:text-6xl font-black mb-6">知识流动</h2>
+              <motion.h2
+                style={{ x: useTransform(useScroll().scrollYProgress, [0.4, 0.55], [0, 200]) }}
+                className="text-4xl md:text-6xl font-black mb-6"
+              >
+                知识流动
+              </motion.h2>
               <p className={`text-xl md:text-2xl font-light mb-8 ${isDark ? 'text-[#b0b0b0]' : 'text-[#525252]'}`}>
                 Knowledge flows through your network.
               </p>
@@ -555,9 +586,12 @@ export default function LandingNew() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+              className={`text-xl md:text-2xl leading-loose font-light ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'} relative p-8`}
+              style={{ fontFamily: "'Noto Serif SC', serif" }}
             >
-              当连接足够多，结构逐渐清晰，知识便不再停留在静态的记录之中，而开始在不同节点之间流动。<br/><br/>
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-20" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-20" />
+              当<span className={`px-1 ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>连接</span>足够多，结构逐渐清晰，知识便不再停留在静态的记录之中，而开始在不同节点之间流动。<br/><br/>
               你可以从一个想法出发，跳转到相关的记录，再从中延伸出新的理解，形成连续的思考路径。<br/><br/>
               这种流动，让思考不再是线性的，而是网状的、可回溯的、可延展的。<br/><br/>
               每一次浏览与回顾，都可能重新组合已有的信息，产生新的理解。<br/><br/>
@@ -584,8 +618,11 @@ export default function LandingNew() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+              className={`text-xl md:text-2xl leading-loose font-light ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'} relative p-8`}
+              style={{ fontFamily: "'Noto Serif SC', serif" }}
             >
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-20" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-20" />
               当信息被不断连接、重组与验证，原本零散的想法开始沉淀为相对稳定的认知成果。<br/><br/>
               这些成果可能是一段完整的观点、一篇文章，或是一种你可以反复使用的思考方式。<br/><br/>
               它们不再是偶然出现的灵感，而是经过多次推演与整理之后形成的"结晶"。<br/><br/>
@@ -648,8 +685,11 @@ export default function LandingNew() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+              className={`text-xl md:text-2xl leading-loose font-light ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'} relative p-8`}
+              style={{ fontFamily: "'Noto Serif SC', serif" }}
             >
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-current opacity-20" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-current opacity-20" />
               真正的理解，并不是一次完成的。<br/><br/>
               随着时间推移，你会不断回到过去的记录，在新的经验与认知基础上，对旧的内容进行修正、补充与重构。<br/><br/>
               一些曾经模糊的概念逐渐清晰，一些曾经确定的结论也可能被推翻。<br/><br/>
