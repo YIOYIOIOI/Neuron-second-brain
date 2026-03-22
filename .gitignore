@@ -9,3 +9,8 @@ coverage/
 
 # Gemini CLI
 GEMINI.md
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
