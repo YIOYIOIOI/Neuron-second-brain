@@ -2,6 +2,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { TopBar } from './TopBar';
 import { CustomCursor } from './CustomCursor';
+import { AgentChat } from './AgentChat';
 import { useStore } from '../store/useStore';
 import { useTheme } from '../hooks/useTheme';
 import { Toaster } from 'react-hot-toast';
@@ -32,6 +33,7 @@ export function Layout() {
       >
         <Outlet />
       </main>
+      <AgentChat />
       <Toaster
         position="bottom-right"
         toastOptions={{

@@ -22,6 +22,8 @@ export default function Review() {
   const [showAddCard, setShowAddCard] = useState(false);
   const [newQuestion, setNewQuestion] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
+  const [addCardDeckId, setAddCardDeckId] = useState<string | null>(null);
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 150);
@@ -82,20 +84,38 @@ export default function Review() {
   };
 
   const handleAddCard = () => {
-    if (!newQuestion.trim() || !newAnswer.trim() || !activeReviewDeckId) return;
+    const targetDeckId = addCardDeckId || activeReviewDeckId;
+    if (!targetDeckId) return;
+
+    let question = newQuestion.trim();
+    let answer = newAnswer.trim();
+
+    // If knowledge is selected, use its data
+    if (selectedKnowledgeId) {
+      const knowledge = knowledgeList.find(k => k.id === selectedKnowledgeId);
+      if (knowledge) {
+        question = question || knowledge.title;
+        answer = answer || knowledge.summary;
+      }
+    }
+
+    if (!question || !answer) return;
 
     const newCard: ReviewCard = {
       id: crypto.randomUUID(),
-      deckId: activeReviewDeckId,
-      question: newQuestion.trim(),
-      answer: newAnswer.trim(),
+      deckId: targetDeckId,
+      question,
+      answer,
+      sourceKnowledgeId: selectedKnowledgeId || undefined,
       createdAt: new Date().toISOString()
     };
 
     addReviewCard(newCard);
     setNewQuestion('');
     setNewAnswer('');
+    setSelectedKnowledgeId('');
     setShowAddCard(false);
+    setAddCardDeckId(null);
   };
 
   if (isLoading) {
@@ -237,15 +257,28 @@ export default function Review() {
                   <>
                     <div className="flex items-center justify-between mb-1">
                       <span className={`font-medium text-sm ${isActive ? 'text-accent' : ''}`}>{deck.name}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowDeleteConfirm(deck.id);
-                        }}
-                        className="p-1 hover:bg-border-subtle rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-3 h-3 text-text-secondary" />
-                      </button>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAddCardDeckId(deck.id);
+                            setShowAddCard(true);
+                          }}
+                          className="p-1 hover:bg-border-subtle rounded"
+                          title={language === 'zh' ? '添加卡片' : 'Add card'}
+                        >
+                          <Plus className="w-3 h-3 text-text-secondary" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowDeleteConfirm(deck.id);
+                          }}
+                          className="p-1 hover:bg-border-subtle rounded"
+                        >
+                          <Trash2 className="w-3 h-3 text-text-secondary" />
+                        </button>
+                      </div>
                     </div>
                     <p className="text-xs text-text-secondary line-clamp-1">{deck.description}</p>
                     <span className="text-xs text-text-secondary mt-1">{cardCount} {language === 'zh' ? '张卡片' : 'cards'}</span>
@@ -481,6 +514,30 @@ export default function Review() {
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="text-xl font-medium mb-4">{language === 'zh' ? '添加复习卡片' : 'Add Review Card'}</h2>
+
+              <div className="mb-4">
+                <label className="block text-sm text-text-secondary mb-2">{language === 'zh' ? '从知识库选择（可选）' : 'Select from Knowledge (Optional)'}</label>
+                <select
+                  value={selectedKnowledgeId}
+                  onChange={(e) => {
+                    setSelectedKnowledgeId(e.target.value);
+                    if (e.target.value) {
+                      const knowledge = knowledgeList.find(k => k.id === e.target.value);
+                      if (knowledge) {
+                        setNewQuestion(knowledge.title);
+                        setNewAnswer(knowledge.summary);
+                      }
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary mb-3"
+                >
+                  <option value="">{language === 'zh' ? '手动输入' : 'Manual input'}</option>
+                  {knowledgeList.map(k => (
+                    <option key={k.id} value={k.id}>{k.title}</option>
+                  ))}
+                </select>
+              </div>
+
               <input
                 type="text"
                 value={newQuestion}
@@ -505,7 +562,7 @@ export default function Review() {
                 </button>
                 <button
                   onClick={handleAddCard}
-                  disabled={!newQuestion.trim() || !newAnswer.trim()}
+                  disabled={(!newQuestion.trim() || !newAnswer.trim()) && !selectedKnowledgeId}
                   className="flex-1 px-4 py-2 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors disabled:opacity-50"
                 >
                   {language === 'zh' ? '添加' : 'Add'}

@@ -4,7 +4,6 @@ import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
 import { Loader2, Sparkles, Plus, Search } from 'lucide-react';
 import { RichEditor } from '../components/RichEditor';
-import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 import toast from 'react-hot-toast';
 
 export default function Writing() {
@@ -227,7 +226,6 @@ export default function Writing() {
           </div>
         </div>
       </div>
-      <PinnedCardsSidebar />
     </div>
   );
 }
