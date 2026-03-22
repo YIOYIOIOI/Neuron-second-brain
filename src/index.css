@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+  --color-bg-primary: var(--theme-bg-primary);
+  --color-bg-secondary: var(--theme-bg-secondary);
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-border-subtle: var(--theme-border-subtle);
+  --color-accent: var(--theme-accent);
+}
+
+/* Light Theme (default) */
+:root, [data-theme="light"] {
+  --theme-bg-primary: #F8F6F2;
+  --theme-bg-secondary: #EDEDED;
+  --theme-text-primary: #2B2B2B;
+  --theme-text-secondary: #737373;
+  --theme-border-subtle: #E5E5E5;
+  --theme-accent: #4A5D4E;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --theme-bg-primary: #1A1A1A;
+  --theme-bg-secondary: #252525;
+  --theme-text-primary: #E8E8E8;
+  --theme-text-secondary: #999999;
+  --theme-border-subtle: #333333;
+  --theme-accent: #7BA686;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary font-sans antialiased selection:bg-text-primary selection:text-bg-primary;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1D1D1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A3A3A3;
+}
+
+/* Subtle underline animation */
+.hover-underline {
+  position: relative;
+  display: inline-block;
+}
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: currentColor;
+  transform-origin: bottom right;
+  transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+}
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Hide scrollbar for clean UI but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tiptap Editor Styles */
+.tiptap {
+  outline: none;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.tiptap h1 { font-size: 2em; font-weight: 600; margin: 0.67em 0; }
+.tiptap h2 { font-size: 1.5em; font-weight: 600; margin: 0.75em 0; }
+.tiptap h3 { font-size: 1.25em; font-weight: 600; margin: 0.8em 0; }
+.tiptap ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
+.tiptap ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
+.tiptap li { margin: 0.25em 0; }
+.tiptap blockquote {
+  border-left: 3px solid var(--theme-border-subtle);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--theme-text-secondary);
+  font-style: italic;
+}
+.tiptap code {
+  background: var(--theme-bg-secondary);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tiptap pre {
+  background: var(--theme-text-primary);
+  color: var(--theme-bg-primary);
+  padding: 1em;
+  border-radius: 6px;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+.tiptap pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+.tiptap hr {
+  border: none;
+  border-top: 1px solid var(--theme-border-subtle);
+  margin: 1.5em 0;
+}
+.tiptap mark {
+  background-color: #fef08a;
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+}
+.tiptap p {
+  margin: 0.5em 0;
+  line-height: 1.8;
+}
+
+/* Block Editor Placeholder */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--theme-text-secondary);
+  opacity: 0.5;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Smooth Cursor Animation */
+.smooth-cursor [contenteditable] {
+  caret-color: var(--theme-accent);
+}
+.smooth-cursor [contenteditable]::selection {
+  background: var(--theme-accent);
+  color: var(--theme-bg-primary);
+}
+@keyframes blink-smooth {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.smooth-cursor [contenteditable]:focus {
+  animation: none;
+}
