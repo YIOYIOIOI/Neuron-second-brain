@@ -304,7 +304,7 @@ export default function Graph() {
           )}
 
           {/* Selected node detail card */}
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 z-[70]">
             <AnimatePresence>
               {selectedNode && (
                 <NodeDetailCard

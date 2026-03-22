@@ -112,7 +112,7 @@ export function TopBar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute right-0 top-full mt-2 w-64 bg-bg-primary border border-border-subtle rounded-lg shadow-xl overflow-hidden"
+                className="absolute right-0 top-full mt-2 w-64 bg-bg-primary border border-border-subtle rounded-lg shadow-xl overflow-hidden z-[70]"
               >
                 {/* User Info Card */}
                 <div className="p-4 border-b border-border-subtle bg-bg-secondary/30">

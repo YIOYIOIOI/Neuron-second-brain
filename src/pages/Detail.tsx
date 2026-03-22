@@ -3,7 +3,7 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download, BookOpen } from 'lucide-react';
+import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download, BookOpen, Pin, PinOff } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { BlockEditor } from '../components/BlockEditor';
 import { FloatingChat } from '../components/FloatingChat';
@@ -15,7 +15,7 @@ export default function Detail() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard } = useStore();
+  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard } = useStore();
   const { t, language } = useTranslation();
 
   const item = knowledgeList.find((n) => n.id === id);
@@ -33,6 +33,7 @@ export default function Detail() {
   const [refSearchQuery, setRefSearchQuery] = useState('');
   const [showReviewCardModal, setShowReviewCardModal] = useState(false);
   const [selectedDeckId, setSelectedDeckId] = useState('');
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -215,25 +216,47 @@ export default function Detail() {
     setEditReferences(editReferences.filter(r => r !== refId));
   };
 
-  const handleExport = () => {
+  const handleExport = (format: 'markdown' | 'json' | 'text') => {
     if (!item) return;
-    let markdown = `# ${item.title}\n\n`;
-    markdown += `**${t('createdAt')}:** ${new Date(item.createdAt).toLocaleDateString()}\n\n`;
-    if (item.tags.length > 0) {
-      markdown += `**${t('tags')}:** ${item.tags.join(', ')}\n\n`;
-    }
-    markdown += `## ${t('summary')}\n\n${item.summary}\n\n`;
-    markdown += `## ${t('content')}\n\n`;
-    const plainContent = item.content.replace(/<[^>]*>/g, '').trim();
-    markdown += `${plainContent}\n\n`;
 
-    const blob = new Blob([markdown], { type: 'text/markdown' });
+    let content = '';
+    let filename = '';
+    let mimeType = '';
+
+    if (format === 'markdown') {
+      content = `# ${item.title}\n\n`;
+      content += `**Created:** ${new Date(item.createdAt).toLocaleDateString()}\n\n`;
+      if (item.tags.length > 0) {
+        content += `**Tags:** ${item.tags.join(', ')}\n\n`;
+      }
+      content += `## Summary\n\n${item.summary}\n\n`;
+      content += `## Content\n\n${item.content.replace(/<[^>]*>/g, '').trim()}\n`;
+      filename = `${item.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '-')}.md`;
+      mimeType = 'text/markdown';
+    } else if (format === 'json') {
+      content = JSON.stringify(item, null, 2);
+      filename = `${item.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '-')}.json`;
+      mimeType = 'application/json';
+    } else {
+      content = `${item.title}\n\n`;
+      content += `Created: ${new Date(item.createdAt).toLocaleDateString()}\n\n`;
+      if (item.tags.length > 0) {
+        content += `Tags: ${item.tags.join(', ')}\n\n`;
+      }
+      content += `Summary:\n${item.summary}\n\n`;
+      content += `Content:\n${item.content.replace(/<[^>]*>/g, '').trim()}\n`;
+      filename = `${item.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '-')}.txt`;
+      mimeType = 'text/plain';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${item.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '-')}.md`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+    setShowExportModal(false);
     toast.success(language === 'zh' ? '导出成功！' : 'Export successful!');
   };
 
@@ -259,13 +282,27 @@ export default function Detail() {
 
         <div className="flex gap-4">
           <button
-            onClick={handleExport}
+            onClick={() => setShowExportModal(true)}
             className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
           >
             <Download className="w-4 h-4" /> {t('export')}
           </button>
           {!isEditing ? (
             <>
+              <button
+                onClick={() => {
+                  const isPinned = pinnedCards.some(c => c.id === item.id);
+                  if (isPinned) {
+                    unpinCard(item.id);
+                  } else {
+                    pinCard({ id: item.id, title: item.title, summary: item.summary });
+                  }
+                }}
+                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+              >
+                {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+                {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
+              </button>
               <button
                 onClick={() => setShowReviewCardModal(true)}
                 className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
@@ -582,7 +619,7 @@ export default function Detail() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
             onClick={() => setShowReviewCardModal(false)}
           >
             <motion.div
@@ -627,6 +664,52 @@ export default function Detail() {
                   className="flex-1 px-4 py-2 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors"
                 >
                   {language === 'zh' ? '创建' : 'Create'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Export Modal */}
+      <AnimatePresence>
+        {showExportModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            onClick={() => setShowExportModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-bg-primary border border-border-subtle rounded-xl p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-medium mb-4">{t('exportFormat')}</h2>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => handleExport('markdown')}
+                  className="w-full px-4 py-3 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors text-left"
+                >
+                  <div className="font-medium">{t('exportAsMarkdown')}</div>
+                  <div className="text-xs text-text-secondary mt-1">{language === 'zh' ? '适合文档编辑和发布' : 'Best for documentation'}</div>
+                </button>
+                <button
+                  onClick={() => handleExport('json')}
+                  className="w-full px-4 py-3 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors text-left"
+                >
+                  <div className="font-medium">{t('exportAsJSON')}</div>
+                  <div className="text-xs text-text-secondary mt-1">{language === 'zh' ? '包含完整数据结构' : 'Complete data structure'}</div>
+                </button>
+                <button
+                  onClick={() => handleExport('text')}
+                  className="w-full px-4 py-3 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors text-left"
+                >
+                  <div className="font-medium">{t('exportAsText')}</div>
+                  <div className="text-xs text-text-secondary mt-1">{language === 'zh' ? '纯文本格式' : 'Plain text format'}</div>
                 </button>
               </div>
             </motion.div>

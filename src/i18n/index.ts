@@ -98,6 +98,12 @@ export const i18n = {
     reviewQuestion: 'Question',
     reviewAnswer: 'Answer',
     selectDeck: 'Select Deck',
+    back: 'Back',
+    export: 'Export',
+    exportFormat: 'Export Format',
+    exportAsMarkdown: 'Markdown (.md)',
+    exportAsJSON: 'JSON (.json)',
+    exportAsText: 'Plain Text (.txt)',
   },
   zh: {
     dashboard: '知识库',
@@ -198,6 +204,12 @@ export const i18n = {
     reviewQuestion: '问题',
     reviewAnswer: '答案',
     selectDeck: '选择复习库',
+    back: '返回',
+    export: '导出',
+    exportFormat: '导出格式',
+    exportAsMarkdown: 'Markdown (.md)',
+    exportAsJSON: 'JSON (.json)',
+    exportAsText: '纯文本 (.txt)',
   }
 };
 
