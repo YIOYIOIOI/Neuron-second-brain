@@ -15,7 +15,10 @@ interface FolderSidebarProps {
 
 export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarProps) {
   const { folders, knowledgeList, addFolder, updateFolder, deleteFolder, language, moveKnowledgeToFolder } = useStore();
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('expandedFolders');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [showNewFolder, setShowNewFolder] = useState<string | null>(null); // parentId or 'root'
@@ -24,6 +27,10 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
   const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    localStorage.setItem('expandedFolders', JSON.stringify([...expandedFolders]));
+  }, [expandedFolders]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -173,7 +180,6 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
       moveKnowledgeToFolder(draggedKnowledgeId, targetFolderId);
       if (targetFolderId) {
         setExpandedFolders(prev => new Set([...prev, targetFolderId]));
-        onSelectFolder(targetFolderId);
       }
     }
   };

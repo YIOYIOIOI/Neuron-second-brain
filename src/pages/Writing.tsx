@@ -52,7 +52,7 @@ export default function Writing() {
     }
 
     const newId = Date.now().toString();
-    const finalTitle = title.trim() || 'Untitled Draft';
+    const finalTitle = title.trim() || (language === 'zh' ? '无标题草稿' : 'Untitled Draft');
 
     const newItem = {
       id: newId,

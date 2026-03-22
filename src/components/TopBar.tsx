@@ -44,9 +44,9 @@ export function TopBar() {
     const newId = Date.now().toString();
     const newItem = {
       id: newId,
-      title: 'Untitled',
+      title: language === 'zh' ? '无标题' : 'Untitled',
       content: '',
-      summary: 'New knowledge item',
+      summary: language === 'zh' ? '新建知识' : 'New knowledge item',
       tags: [],
       createdAt: new Date().toISOString(),
       relatedIds: [],
