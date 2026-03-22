@@ -180,7 +180,7 @@ export function Navbar() {
     >
       <div>
         {/* Logo */}
-        <Link to="/" className="flex items-center px-3 mb-8 hover:opacity-70 transition-opacity">
+        <Link to="/?skipLoading" className="flex items-center px-3 mb-8 hover:opacity-70 transition-opacity">
           <svg width="26" height="26" viewBox="0 0 32 32" fill="none" className="shrink-0">
             <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2" />
             <circle cx="12" cy="13" r="3" fill="currentColor" />

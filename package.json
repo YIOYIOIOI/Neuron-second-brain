@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
+    "@studio-freight/lenis": "^1.0.42",
     "@tailwindcss/vite": "^4.1.14",
     "@tiptap/extension-color": "^3.20.4",
     "@tiptap/extension-highlight": "^3.20.4",

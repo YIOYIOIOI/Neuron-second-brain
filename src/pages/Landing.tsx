@@ -48,6 +48,39 @@ const features = [
   },
 ];
 
+const contentBlocks = [
+  {
+    titleZh: '想法从寂静中浮现',
+    titleEn: 'Ideas Emerge from Silence',
+    contentZh: '在一切结构与逻辑形成之前，思考往往诞生于最安静的时刻。那些尚未成型的念头，以零散、模糊甚至略显混乱的状态出现，它们没有明确的归属，也没有清晰的边界，却蕴含着最原始的创造力。\n\n你不会在一开始就拥有答案，你只是在记录一些片段——一句话、一个灵感、一个尚未完成的推论。\n\n个人知识库的意义，正是在这一刻开始显现：它不是为了整理已经清晰的内容，而是为了承接那些尚未被理解的想法，让它们不被遗忘，并等待被进一步发展。',
+    contentEn: 'Before structure and logic take shape, thinking often emerges in the quietest moments. Unformed thoughts appear scattered, vague, even chaotic—without clear boundaries or belonging, yet containing the most primitive creativity.\n\nYou won\'t have answers at first. You\'re just recording fragments—a sentence, an inspiration, an incomplete inference.\n\nThis is where a personal knowledge base begins to matter: not to organize what\'s already clear, but to catch ideas not yet understood, keeping them from being forgotten while they wait to develop further.'
+  },
+  {
+    titleZh: '连接自然形成',
+    titleEn: 'Connections Form Naturally',
+    contentZh: '当记录逐渐积累，原本孤立的内容开始产生联系。不同时间、不同语境下产生的想法，在回顾中彼此呼应，形成隐约可见的结构。\n\n你会开始发现：一些观点其实来源于同一个问题，一些笔记之间存在潜在的关联，而某些看似无关的内容，正在逐渐指向同一个方向。\n\n这种连接并不是刻意构建的结果，而是在持续记录与回看中自然浮现的关系网络。\n\n知识不再是孤立的片段，而开始形成脉络。而知识库的价值，也从"记录工具"转变为关系的发现系统。',
+    contentEn: 'As records accumulate, isolated content begins to connect. Ideas from different times and contexts echo each other in review, forming dimly visible structures.\n\nYou start discovering: some views stem from the same question, some notes share hidden links, and seemingly unrelated content gradually points in the same direction.\n\nThese connections aren\'t deliberately constructed—they\'re relationship networks naturally emerging through continuous recording and review.\n\nKnowledge is no longer isolated fragments but begins forming threads. The knowledge base transforms from a "recording tool" into a system for discovering relationships.'
+  },
+  {
+    titleZh: '知识开始流动',
+    titleEn: 'Knowledge Begins to Flow',
+    contentZh: '当连接足够多，结构逐渐清晰，知识便不再停留在静态的记录之中，而开始在不同节点之间流动。\n\n你可以从一个想法出发，跳转到相关的记录，再从中延伸出新的理解，形成连续的思考路径。\n\n这种流动，让思考不再是线性的，而是网状的、可回溯的、可延展的。\n\n每一次浏览与回顾，都可能重新组合已有的信息，产生新的理解。\n\n此时的知识库，不再只是"存储"，而成为一个持续运转的思考系统。',
+    contentEn: 'When connections multiply and structure clarifies, knowledge no longer stays in static records but flows between nodes.\n\nYou can start from one idea, jump to related records, extend into new understanding, forming continuous thought paths.\n\nThis flow makes thinking non-linear—networked, traceable, expandable.\n\nEach browse and review might recombine existing information, generating new understanding.\n\nThe knowledge base is no longer just "storage" but becomes a continuously operating thinking system.'
+  },
+  {
+    titleZh: '产出思维结晶',
+    titleEn: 'Crystallizing Thought',
+    contentZh: '当信息被不断连接、重组与验证，原本零散的想法开始沉淀为相对稳定的认知成果。\n\n这些成果可能是一段完整的观点、一篇文章，或是一种你可以反复使用的思考方式。\n\n它们不再是偶然出现的灵感，而是经过多次推演与整理之后形成的"结晶"。\n\n在这一阶段，知识库帮助你完成的，不只是记录与连接，而是将思考转化为可表达、可复用、可传播的内容。\n\n这也是从"收集信息"走向"创造价值"的关键一步。',
+    contentEn: 'As information connects, reorganizes, and validates, scattered ideas settle into relatively stable cognitive outcomes.\n\nThese might be complete viewpoints, articles, or reusable thinking methods.\n\nNo longer accidental inspirations, they\'re "crystals" formed through repeated deduction and organization.\n\nAt this stage, the knowledge base does more than record and connect—it transforms thinking into expressible, reusable, shareable content.\n\nThis is the crucial step from "collecting information" to "creating value."'
+  },
+  {
+    titleZh: '理解不断深化',
+    titleEn: 'Understanding Deepens',
+    contentZh: '真正的理解，并不是一次完成的。\n\n随着时间推移，你会不断回到过去的记录，在新的经验与认知基础上，对旧的内容进行修正、补充与重构。\n\n一些曾经模糊的概念逐渐清晰，一些曾经确定的结论也可能被推翻。\n\n知识在反复的迭代中不断被打磨，思维的深度，也在这一过程中逐渐建立。\n\n个人知识库的最终意义，并不只是"存储过去"，而是帮助你在持续回看与重构中，形成更稳定、更深刻的认知体系。',
+    contentEn: 'True understanding isn\'t achieved in one go.\n\nOver time, you\'ll return to past records, revising, supplementing, and reconstructing old content based on new experience and cognition.\n\nOnce-vague concepts gradually clarify; once-certain conclusions might be overturned.\n\nKnowledge is refined through repeated iteration, and depth of thinking gradually builds in this process.\n\nThe ultimate meaning of a personal knowledge base isn\'t just "storing the past," but helping you form a more stable, profound cognitive system through continuous review and reconstruction.'
+  }
+];
+
 export default function Landing() {
   const { t } = useTranslation();
   const { language } = useStore();
@@ -56,7 +89,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden bg-bg-primary text-text-primary">
       {/* Left Section - Main Content */}
-      <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-16 lg:py-0">
+      <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:pl-48 lg:pr-24 py-16 lg:py-0">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -85,27 +118,27 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="text-lg md:text-xl text-text-secondary max-w-xl mb-12 font-light leading-relaxed"
+            className="text-lg md:text-xl text-text-secondary max-w-xl mb-16 font-light leading-relaxed"
           >
             {t('landingDesc')}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="flex justify-center"
           >
             <Link
               to="/dashboard"
-              className="group inline-flex items-center gap-4 text-sm uppercase tracking-widest font-medium border-b border-text-primary pb-2 hover:text-text-secondary hover:border-text-secondary transition-colors"
+              className="group relative inline-flex items-center justify-center gap-2 px-8 py-3 text-xs uppercase tracking-widest font-medium border-2 border-text-primary rounded-full transition-all duration-300 hover:bg-text-primary hover:text-bg-primary hover:scale-105"
             >
-              {t('enter')}
+              <span>{t('enter')}</span>
               <motion.span
-                className="inline-block"
-                whileHover={{ x: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                animate={{ x: [0, 3, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </motion.span>
             </Link>
           </motion.div>
@@ -192,6 +225,26 @@ export default function Landing() {
               </motion.div>
             </motion.div>
           ))}
+
+          {/* Content Blocks */}
+          <div className="mt-16 space-y-12">
+            {contentBlocks.map((block, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.6 + index * 0.2 }}
+                className="border-l-2 border-border-subtle pl-6"
+              >
+                <h3 className="text-xl font-serif mb-4 text-text-primary">
+                  {language === 'zh' ? block.titleZh : block.titleEn}
+                </h3>
+                <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">
+                  {language === 'zh' ? block.contentZh : block.contentEn}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
 
         {/* Bottom Stats */}
@@ -229,7 +282,7 @@ export default function Landing() {
         initial={{ scaleY: 0 }}
         animate={{ scaleY: 1 }}
         transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute left-8 md:left-16 lg:left-24 top-0 w-px h-full bg-border-subtle origin-top hidden lg:block opacity-50"
+        className="absolute left-8 md:left-16 lg:left-32 top-0 w-px h-full bg-border-subtle origin-top hidden lg:block opacity-30"
       />
 
       {/* Footer text */}
@@ -237,7 +290,7 @@ export default function Landing() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 2, delay: 1.6 }}
-        className="absolute left-8 md:left-16 lg:left-24 bottom-8 hidden lg:block text-xs font-mono text-text-secondary tracking-widest uppercase"
+        className="absolute left-8 md:left-16 lg:left-32 bottom-8 hidden lg:block text-xs font-mono text-text-secondary tracking-widest uppercase"
       >
         Est. 2026 — Neuron
       </motion.div>

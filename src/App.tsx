@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 import { Layout } from './components/Layout';
-import Landing from './pages/Landing';
+import LandingNew from './pages/LandingNew';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Detail from './pages/Detail';
@@ -18,12 +19,32 @@ import Writing from './pages/Writing';
 import Profile from './pages/Profile';
 import Agent from './pages/Agent';
 
-export default function App() {
+function AnimatedRoutes() {
+  const location = useLocation();
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <LandingNew />
+          </motion.div>
+        } />
+        <Route path="/login" element={
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Login />
+          </motion.div>
+        } />
         <Route path="/" element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="timeline" element={<Timeline />} />
@@ -38,6 +59,14 @@ export default function App() {
           <Route path="settings" element={<Profile />} />
         </Route>
       </Routes>
+    </AnimatePresence>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AnimatedRoutes />
     </Router>
   );
 }

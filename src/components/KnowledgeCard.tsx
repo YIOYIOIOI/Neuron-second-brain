@@ -50,7 +50,7 @@ export function KnowledgeCard({ item }: Props) {
   return (
     <>
       <article
-        className={`note-card group flex flex-col h-full cursor-grab active:cursor-grabbing transition-all duration-200 ${
+        className={`note-card group flex flex-col h-full cursor-grab active:cursor-grabbing transition-all duration-300 bg-bg-primary border border-border-subtle rounded-lg p-6 hover:shadow-xl hover:border-text-secondary hover:-translate-y-1 ${
           isDragging ? 'opacity-40 scale-[0.98]' : 'opacity-100'
         }`}
         draggable
