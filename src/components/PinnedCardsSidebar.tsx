@@ -29,19 +29,22 @@ export function PinnedCardsSidebar() {
 
   if (pinnedCards.length === 0) {
     return (
-      <motion.div
-        initial={{ x: 300 }}
-        animate={{ x: isCollapsed ? 240 : 0 }}
-        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 z-40"
-      >
+      <>
+        <motion.div
+          initial={{ x: 320 }}
+          animate={{ x: isCollapsed ? 320 : 0 }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-bg-primary border-l border-border-subtle shadow-xl z-40 flex items-center justify-center"
+        >
+          <p className="text-text-secondary text-sm">{t('noPinnedCards')}</p>
+        </motion.div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -left-8 top-4 w-8 h-12 bg-bg-primary border border-r-0 border-border-subtle rounded-l-lg flex items-center justify-center hover:bg-bg-secondary transition-colors shadow-lg"
+          className="fixed right-0 top-20 w-8 h-12 bg-bg-primary border border-r-0 border-border-subtle rounded-l-lg flex items-center justify-center hover:bg-bg-secondary transition-colors shadow-lg z-50"
         >
           {isCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
-      </motion.div>
+      </>
     );
   }
 

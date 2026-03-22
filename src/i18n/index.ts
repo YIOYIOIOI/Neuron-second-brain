@@ -91,6 +91,7 @@ export const i18n = {
     commonTags: 'Common',
     recentTags: 'Recent',
     noTagsFound: 'No tags found',
+    noPinnedCards: 'No pinned cards yet',
   },
   zh: {
     dashboard: '知识库',
@@ -184,6 +185,7 @@ export const i18n = {
     commonTags: '常用',
     recentTags: '最近',
     noTagsFound: '未找到标签',
+    noPinnedCards: '暂无固定卡片',
   }
 };
 
