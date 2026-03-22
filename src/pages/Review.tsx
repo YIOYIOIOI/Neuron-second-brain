@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReviewDeck, ReviewCard } from '../types';
 
 export default function Review() {
-  const { reviewDecks, reviewCards, activeReviewDeckId, setActiveReviewDeckId, addReviewDeck, deleteReviewDeck, addReviewCard, updateReviewCard, deleteReviewCard, knowledgeList } = useStore();
+  const { reviewDecks, reviewCards, activeReviewDeckId, setActiveReviewDeckId, addReviewDeck, deleteReviewDeck, addReviewCard, updateReviewCard, deleteReviewCard, knowledgeList, setReviewCompleted, isReviewCompletedToday } = useStore();
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +19,9 @@ export default function Review() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [reviewCompleted, setReviewCompleted] = useState(false);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [newQuestion, setNewQuestion] = useState('');
+  const [newAnswer, setNewAnswer] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 150);
@@ -50,6 +52,7 @@ export default function Review() {
   const activeDeck = reviewDecks.find(d => d.id === activeReviewDeckId);
   const deckCards = reviewCards.filter(c => c.deckId === activeReviewDeckId);
   const currentCard = deckCards[currentCardIndex];
+  const reviewCompleted = activeReviewDeckId ? isReviewCompletedToday(activeReviewDeckId) : false;
 
   const handleNextCard = () => {
     setIsFlipped(false);
@@ -57,13 +60,17 @@ export default function Review() {
       if (currentCardIndex < deckCards.length - 1) {
         setCurrentCardIndex(prev => prev + 1);
       } else {
-        setReviewCompleted(true);
+        if (activeReviewDeckId) {
+          setReviewCompleted(activeReviewDeckId, true);
+        }
       }
     }, 300);
   };
 
   const handleReviewAgain = () => {
-    setReviewCompleted(false);
+    if (activeReviewDeckId) {
+      setReviewCompleted(activeReviewDeckId, false);
+    }
     setCurrentCardIndex(0);
     setIsFlipped(false);
   };
@@ -72,6 +79,23 @@ export default function Review() {
     const card = reviewCards.find(c => c.id === cardId);
     if (!card) return null;
     return knowledgeList.find(k => k.id === card.sourceKnowledgeId);
+  };
+
+  const handleAddCard = () => {
+    if (!newQuestion.trim() || !newAnswer.trim() || !activeReviewDeckId) return;
+
+    const newCard: ReviewCard = {
+      id: crypto.randomUUID(),
+      deckId: activeReviewDeckId,
+      question: newQuestion.trim(),
+      answer: newAnswer.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    addReviewCard(newCard);
+    setNewQuestion('');
+    setNewAnswer('');
+    setShowAddCard(false);
   };
 
   if (isLoading) {
@@ -247,7 +271,14 @@ export default function Review() {
           <div className="text-center">
             <BookOpen className="w-16 h-16 text-text-secondary mx-auto mb-4" />
             <h2 className="text-2xl font-serif mb-2">{language === 'zh' ? '此复习库为空' : 'This Deck is Empty'}</h2>
-            <p className="text-text-secondary">{language === 'zh' ? '在知识详情页添加卡片到此复习库' : 'Add cards from knowledge detail pages'}</p>
+            <p className="text-text-secondary mb-4">{language === 'zh' ? '在知识详情页添加卡片到此复习库' : 'Add cards from knowledge detail pages'}</p>
+            <button
+              onClick={() => setShowAddCard(true)}
+              className="px-6 py-2.5 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors flex items-center gap-2 mx-auto"
+            >
+              <Plus className="w-4 h-4" />
+              {language === 'zh' ? '手动添加卡片' : 'Add Card Manually'}
+            </button>
           </div>
         ) : reviewCompleted ? (
           <div className="text-center">
@@ -256,12 +287,21 @@ export default function Review() {
             </div>
             <h2 className="text-3xl font-serif mb-2">{language === 'zh' ? '复习完成！' : 'Review Complete!'}</h2>
             <p className="text-text-secondary mb-6">{language === 'zh' ? `已完成 ${deckCards.length} 张卡片的复习` : `Reviewed ${deckCards.length} cards`}</p>
-            <button
-              onClick={handleReviewAgain}
-              className="px-6 py-2.5 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors"
-            >
-              {language === 'zh' ? '再次复习' : 'Review Again'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleReviewAgain}
+                className="px-6 py-2.5 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors"
+              >
+                {language === 'zh' ? '再次复习' : 'Review Again'}
+              </button>
+              <button
+                onClick={() => setShowAddCard(true)}
+                className="px-6 py-2.5 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                {language === 'zh' ? '添加卡片' : 'Add Card'}
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -417,6 +457,58 @@ export default function Review() {
                   className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                 >
                   {language === 'zh' ? '删除' : 'Delete'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}\n      </AnimatePresence>
+
+      {/* Add card modal */}
+      <AnimatePresence>
+        {showAddCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            onClick={() => setShowAddCard(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-bg-primary border border-border-subtle rounded-xl p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-medium mb-4">{language === 'zh' ? '添加复习卡片' : 'Add Review Card'}</h2>
+              <input
+                type="text"
+                value={newQuestion}
+                onChange={(e) => setNewQuestion(e.target.value)}
+                placeholder={language === 'zh' ? '问题' : 'Question'}
+                className="w-full px-4 py-2 border border-border-subtle rounded-lg mb-3 focus:outline-none focus:border-text-primary"
+                autoFocus
+              />
+              <textarea
+                value={newAnswer}
+                onChange={(e) => setNewAnswer(e.target.value)}
+                placeholder={language === 'zh' ? '答案' : 'Answer'}
+                className="w-full px-4 py-2 border border-border-subtle rounded-lg mb-4 focus:outline-none focus:border-text-primary resize-none"
+                rows={4}
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowAddCard(false)}
+                  className="flex-1 px-4 py-2 border border-border-subtle rounded-lg hover:bg-bg-secondary transition-colors"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={handleAddCard}
+                  disabled={!newQuestion.trim() || !newAnswer.trim()}
+                  className="flex-1 px-4 py-2 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors disabled:opacity-50"
+                >
+                  {language === 'zh' ? '添加' : 'Add'}
                 </button>
               </div>
             </motion.div>

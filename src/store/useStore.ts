@@ -22,6 +22,7 @@ interface StoreState {
   reviewDecks: ReviewDeck[];
   reviewCards: ReviewCard[];
   activeReviewDeckId: string | null;
+  reviewCompletionState: Record<string, { completed: boolean; date: string }>;
 
   // Actions
   addKnowledge: (item: KnowledgeItem) => void;
@@ -56,6 +57,8 @@ interface StoreState {
   addReviewCard: (card: ReviewCard) => void;
   updateReviewCard: (id: string, updates: Partial<ReviewCard>) => void;
   deleteReviewCard: (id: string) => void;
+  setReviewCompleted: (deckId: string, completed: boolean) => void;
+  isReviewCompletedToday: (deckId: string) => boolean;
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -79,6 +82,7 @@ export const useStore = create<StoreState>((set) => ({
   reviewDecks: JSON.parse(localStorage.getItem('reviewDecks') || '[]'),
   reviewCards: JSON.parse(localStorage.getItem('reviewCards') || '[]'),
   activeReviewDeckId: null,
+  reviewCompletionState: JSON.parse(localStorage.getItem('reviewCompletionState') || '{}'),
 
   addKnowledge: (item) => set((state) => ({ knowledgeList: [item, ...state.knowledgeList] })),
   updateKnowledge: (id, updates) => set((state) => ({
@@ -199,5 +203,21 @@ export const useStore = create<StoreState>((set) => ({
     const newCards = state.reviewCards.filter(c => c.id !== id);
     localStorage.setItem('reviewCards', JSON.stringify(newCards));
     return { reviewCards: newCards };
-  })
+  }),
+  setReviewCompleted: (deckId, completed) => set((state) => {
+    const today = new Date().toISOString().split('T')[0];
+    const newState = {
+      ...state.reviewCompletionState,
+      [deckId]: { completed, date: today }
+    };
+    localStorage.setItem('reviewCompletionState', JSON.stringify(newState));
+    return { reviewCompletionState: newState };
+  }),
+  isReviewCompletedToday: (deckId) => {
+    const state = useStore.getState();
+    const completion = state.reviewCompletionState[deckId];
+    if (!completion || !completion.completed) return false;
+    const today = new Date().toISOString().split('T')[0];
+    return completion.date === today;
+  }
 }));

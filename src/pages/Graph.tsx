@@ -262,15 +262,6 @@ export default function Graph() {
     }
   }, [pinnedCards, pinCard, unpinCard]);
 
-  const handleWriteWithSelected = useCallback(() => {
-    if (pinnedCards.length === 0) return;
-    const content = pinnedCards.map((node, idx) =>
-      `${idx + 1}. **${node.title}**: ${node.summary}`
-    ).join('\n\n');
-    setEditorState({ content, isOpen: true });
-    navigate('/writing');
-  }, [pinnedCards, setEditorState, navigate]);
-
   const isNodePinned = (nodeId: string) => pinnedCards.some(n => n.id === nodeId);
 
   return (
