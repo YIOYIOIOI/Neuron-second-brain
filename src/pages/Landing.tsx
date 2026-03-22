@@ -87,9 +87,11 @@ export default function Landing() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden bg-bg-primary text-text-primary">
-      {/* Left Section - Main Content */}
-      <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:pl-48 lg:pr-24 py-16 lg:py-0">
+    <div className="bg-bg-primary text-text-primary">
+      {/* Hero Section */}
+      <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden">
+        {/* Left Section - Main Content */}
+        <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:pl-48 lg:pr-24 py-16 lg:py-0">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -225,26 +227,6 @@ export default function Landing() {
               </motion.div>
             </motion.div>
           ))}
-
-          {/* Content Blocks */}
-          <div className="mt-16 space-y-12">
-            {contentBlocks.map((block, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.6 + index * 0.2 }}
-                className="border-l-2 border-border-subtle pl-6"
-              >
-                <h3 className="text-xl font-serif mb-4 text-text-primary">
-                  {language === 'zh' ? block.titleZh : block.titleEn}
-                </h3>
-                <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">
-                  {language === 'zh' ? block.contentZh : block.contentEn}
-                </p>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
 
         {/* Bottom Stats */}
@@ -295,5 +277,36 @@ export default function Landing() {
         Est. 2026 — Neuron
       </motion.div>
     </div>
+
+    {/* Content Blocks Section */}
+    <div className="py-24 px-8 md:px-16">
+      {contentBlocks.map((block, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className={`max-w-7xl mx-auto mb-32 grid lg:grid-cols-2 gap-16 items-center ${
+            index % 2 === 0 ? '' : 'lg:grid-flow-dense'
+          }`}
+        >
+          {/* Title Block */}
+          <div className={index % 2 === 0 ? '' : 'lg:col-start-2'}>
+            <h2 className="text-5xl md:text-7xl font-serif leading-tight">
+              {language === 'zh' ? block.titleZh : block.titleEn}
+            </h2>
+          </div>
+
+          {/* Content Block */}
+          <div className={index % 2 === 0 ? '' : 'lg:col-start-1 lg:row-start-1'}>
+            <p className="text-lg text-text-secondary leading-relaxed whitespace-pre-line">
+              {language === 'zh' ? block.contentZh : block.contentEn}
+            </p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
   );
 }

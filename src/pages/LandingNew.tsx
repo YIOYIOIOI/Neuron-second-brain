@@ -449,7 +449,7 @@ export default function LandingNew() {
 
           {/* 1. 想法从寂静中浮现 */}
           <div
-            className="flow-block flow-block-1 min-h-[80vh] flex items-center px-[8vw] py-20"
+            className="flow-block flow-block-1 min-h-[80vh] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-[8vw] py-20"
             onMouseEnter={() => setCursorScale(2)}
             onMouseLeave={() => setCursorScale(1)}
           >
@@ -467,6 +467,17 @@ export default function LandingNew() {
                 <span>UNSTRUCTURED</span>
               </div>
             </div>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+            >
+              在一切结构与逻辑形成之前，思考往往诞生于最安静的时刻。那些尚未成型的念头，以零散、模糊甚至略显混乱的状态出现，它们没有明确的归属，也没有清晰的边界，却蕴含着最原始的创造力。<br/><br/>
+              你不会在一开始就拥有答案，你只是在记录一些片段——一句话、一个灵感、一个尚未完成的推论。<br/><br/>
+              个人知识库的意义，正是在这一刻开始显现：它不是为了整理已经清晰的内容，而是为了承接那些尚未被理解的想法，让它们不被遗忘，并等待被进一步发展。
+            </motion.div>
           </div>
 
           {/* Connection line 1 */}
@@ -479,10 +490,22 @@ export default function LandingNew() {
 
           {/* 2. 连接自然形成 */}
           <div
-            className="flow-block flow-block-2 min-h-[85vh] flex items-center justify-end px-[8vw] py-20"
+            className="flow-block flow-block-2 min-h-[85vh] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-[8vw] py-20"
             onMouseEnter={() => setCursorScale(2)}
             onMouseLeave={() => setCursorScale(1)}
           >
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+            >
+              当记录逐渐积累，原本孤立的内容开始产生联系。不同时间、不同语境下产生的想法，在回顾中彼此呼应，形成隐约可见的结构。<br/><br/>
+              你会开始发现：一些观点其实来源于同一个问题，一些笔记之间存在潜在的关联，而某些看似无关的内容，正在逐渐指向同一个方向。<br/><br/>
+              这种连接并不是刻意构建的结果，而是在持续记录与回看中自然浮现的关系网络。<br/><br/>
+              知识不再是孤立的片段，而开始形成脉络。而知识库的价值，也从"记录工具"转变为关系的发现系统。
+            </motion.div>
             <div className="max-w-4xl text-right">
               <div className="text-xs tracking-[0.3em] uppercase opacity-40 mb-4">[ 02 ] CONNECTION</div>
               <h2 className="text-6xl md:text-8xl font-black mb-6">连接自然形成</h2>
@@ -509,7 +532,7 @@ export default function LandingNew() {
 
           {/* 3. 知识流动 */}
           <div
-            className="flow-block flow-block-3 min-h-[75vh] flex items-center px-[8vw] py-20"
+            className="flow-block flow-block-3 min-h-[75vh] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-[8vw] py-20"
             onMouseEnter={() => setCursorScale(2)}
             onMouseLeave={() => setCursorScale(1)}
           >
@@ -527,6 +550,19 @@ export default function LandingNew() {
                 <span>EVOLVING</span>
               </div>
             </div>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+            >
+              当连接足够多，结构逐渐清晰，知识便不再停留在静态的记录之中，而开始在不同节点之间流动。<br/><br/>
+              你可以从一个想法出发，跳转到相关的记录，再从中延伸出新的理解，形成连续的思考路径。<br/><br/>
+              这种流动，让思考不再是线性的，而是网状的、可回溯的、可延展的。<br/><br/>
+              每一次浏览与回顾，都可能重新组合已有的信息，产生新的理解。<br/><br/>
+              此时的知识库，不再只是"存储"，而成为一个持续运转的思考系统。
+            </motion.div>
           </div>
 
           {/* Connection line 3 */}
@@ -539,10 +575,23 @@ export default function LandingNew() {
 
           {/* 4. 产出思维结晶 */}
           <div
-            className="flow-block flow-block-4 min-h-[80vh] flex items-center justify-end px-[8vw] py-20"
+            className="flow-block flow-block-4 min-h-[80vh] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-[8vw] py-20"
             onMouseEnter={() => setCursorScale(2)}
             onMouseLeave={() => setCursorScale(1)}
           >
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+            >
+              当信息被不断连接、重组与验证，原本零散的想法开始沉淀为相对稳定的认知成果。<br/><br/>
+              这些成果可能是一段完整的观点、一篇文章，或是一种你可以反复使用的思考方式。<br/><br/>
+              它们不再是偶然出现的灵感，而是经过多次推演与整理之后形成的"结晶"。<br/><br/>
+              在这一阶段，知识库帮助你完成的，不只是记录与连接，而是将思考转化为可表达、可复用、可传播的内容。<br/><br/>
+              这也是从"收集信息"走向"创造价值"的关键一步。
+            </motion.div>
             <div className="max-w-4xl text-right">
               <div className="text-xs tracking-[0.3em] uppercase opacity-40 mb-4">[ 04 ] CRYSTALLIZE</div>
               <h2 className="text-5xl md:text-7xl font-black mb-6">
@@ -576,7 +625,7 @@ export default function LandingNew() {
 
           {/* 5. 理解深化 */}
           <div
-            className="flow-block flow-block-5 min-h-[75vh] flex items-center px-[8vw] py-20"
+            className="flow-block flow-block-5 min-h-[75vh] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-[8vw] py-20"
             onMouseEnter={() => setCursorScale(2)}
             onMouseLeave={() => setCursorScale(1)}
           >
@@ -594,6 +643,19 @@ export default function LandingNew() {
                 <span>MASTER</span>
               </div>
             </div>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className={`text-base leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-[#606060]'}`}
+            >
+              真正的理解，并不是一次完成的。<br/><br/>
+              随着时间推移，你会不断回到过去的记录，在新的经验与认知基础上，对旧的内容进行修正、补充与重构。<br/><br/>
+              一些曾经模糊的概念逐渐清晰，一些曾经确定的结论也可能被推翻。<br/><br/>
+              知识在反复的迭代中不断被打磨，思维的深度，也在这一过程中逐渐建立。<br/><br/>
+              个人知识库的最终意义，并不只是"存储过去"，而是帮助你在持续回看与重构中，形成更稳定、更深刻的认知体系。
+            </motion.div>
           </div>
         </section>
 
