@@ -145,7 +145,7 @@ export default function Graph() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 100);
@@ -370,39 +370,28 @@ export default function Graph() {
       {/* Right sidebar for pinned cards */}
       <motion.div
         initial={false}
-        animate={{ width: sidebarOpen ? 280 : 40 }}
+        animate={{ width: sidebarOpen ? 320 : 0 }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="border-l border-border-subtle bg-bg-secondary/30 flex flex-col relative"
+        className="border-l border-border-subtle bg-bg-primary shadow-xl flex flex-col relative overflow-hidden"
       >
-        {/* Toggle button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-bg-primary border border-border-subtle rounded-full flex items-center justify-center hover:bg-border-subtle transition-colors z-10"
-        >
-          {sidebarOpen ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
-        </button>
-
         {sidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col h-full"
+            className="flex flex-col h-full w-80"
           >
             {/* Header */}
             <div className="p-4 border-b border-border-subtle">
-              <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary flex items-center gap-2">
-                <Pin className="w-3 h-3" />
+              <h3 className="text-sm font-medium mb-1">
                 {t('pinnedCards')} ({pinnedCards.length})
               </h3>
             </div>
 
             {/* Pinned cards list */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
               <AnimatePresence>
                 {pinnedCards.length === 0 ? (
-                  <p className="text-xs text-text-secondary text-center py-8">
-                    {t('noResults')}
-                  </p>
+                  <p className="text-text-secondary text-sm">{t('noPinnedCards')}</p>
                 ) : (
                   pinnedCards.map(node => (
                     <PinnedCard
@@ -418,18 +407,26 @@ export default function Graph() {
 
             {/* Write button */}
             {pinnedCards.length > 0 && (
-              <div className="p-3 border-t border-border-subtle">
+              <div className="p-4 border-t border-border-subtle">
                 <button
-                  onClick={handleWriteWithSelected}
-                  className="w-full py-2.5 bg-text-primary text-bg-primary text-xs uppercase tracking-widest font-medium rounded-lg hover:bg-text-secondary transition-colors flex items-center justify-center gap-2"
+                  onClick={handleWriteWithPinned}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors text-sm font-medium"
                 >
-                  <PenTool className="w-3.5 h-3.5" />
+                  <PenTool className="w-4 h-4" />
                   {t('writeWithSelected')}
                 </button>
               </div>
             )}
           </motion.div>
         )}
+
+        {/* Toggle button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="absolute -left-8 top-4 w-8 h-12 bg-bg-primary border border-r-0 border-border-subtle rounded-l-lg flex items-center justify-center hover:bg-bg-secondary transition-colors shadow-lg"
+        >
+          {sidebarOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
       </motion.div>
     </div>
   );

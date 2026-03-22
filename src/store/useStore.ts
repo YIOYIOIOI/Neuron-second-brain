@@ -55,7 +55,7 @@ export const useStore = create<StoreState>((set) => ({
     { id: '1', role: 'ai', content: 'How can I assist you with your knowledge base today?' }
   ],
   user: localStorage.getItem('user'),
-  language: (localStorage.getItem('language') as Language) || 'en',
+  language: (localStorage.getItem('language') as Language) || 'zh',
   editorState: '',
   selectedKnowledge: [],
   sidebarCollapsed: false,

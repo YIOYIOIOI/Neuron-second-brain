@@ -16,7 +16,7 @@ export function PinnedCardsSidebar() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { pinnedCards, unpinCard, setEditorState } = useStore();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const handleWriteWithPinned = () => {
     if (pinnedCards.length === 0) return;
