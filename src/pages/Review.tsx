@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
-import { Plus, Trash2, BookOpen, ArrowRight, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, BookOpen, ArrowRight, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight, Pin } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { ReviewDeck, ReviewCard } from '../types';
@@ -24,6 +24,7 @@ export default function Review() {
   const [newAnswer, setNewAnswer] = useState('');
   const [addCardDeckId, setAddCardDeckId] = useState<string | null>(null);
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState('');
+  const [expandedDeckId, setExpandedDeckId] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 150);
@@ -242,47 +243,81 @@ export default function Review() {
                   setCurrentCardIndex(0);
                   setIsFlipped(false);
                   setReviewCompleted(false);
+                  setExpandedDeckId(null);
                 }}
-                className={`w-full p-3 rounded-lg mb-2 text-left transition-colors ${
+                className={`w-full p-3 rounded-lg mb-2 text-left transition-all relative overflow-hidden group ${
                   isActive ? 'bg-accent/10 border border-accent' : 'hover:bg-bg-secondary border border-transparent'
                 }`}
                 title={sidebarCollapsed ? deck.name : undefined}
               >
-                {sidebarCollapsed ? (
-                  <div className="flex flex-col items-center">
-                    <BookOpen className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
-                    <span className="text-xs mt-1">{cardCount}</span>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={`font-medium text-sm ${isActive ? 'text-accent' : ''}`}>{deck.name}</span>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <motion.div
+                  animate={{ x: expandedDeckId === deck.id ? -120 : 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="relative"
+                >
+                  {sidebarCollapsed ? (
+                    <div className="flex flex-col items-center">
+                      <BookOpen className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
+                      <span className="text-xs mt-1">{cardCount}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`font-medium text-sm ${isActive ? 'text-accent' : ''}`}>{deck.name}</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setAddCardDeckId(deck.id);
-                            setShowAddCard(true);
+                            setExpandedDeckId(expandedDeckId === deck.id ? null : deck.id);
                           }}
-                          className="p-1 hover:bg-border-subtle rounded"
-                          title={language === 'zh' ? '添加卡片' : 'Add card'}
+                          className="p-1 hover:bg-border-subtle rounded transition-opacity"
                         >
-                          <Plus className="w-3 h-3 text-text-secondary" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowDeleteConfirm(deck.id);
-                          }}
-                          className="p-1 hover:bg-border-subtle rounded"
-                        >
-                          <Trash2 className="w-3 h-3 text-text-secondary" />
+                          <ChevronRight className={`w-3 h-3 text-text-secondary transition-transform ${expandedDeckId === deck.id ? 'rotate-180' : ''}`} />
                         </button>
                       </div>
-                    </div>
-                    <p className="text-xs text-text-secondary line-clamp-1">{deck.description}</p>
-                    <span className="text-xs text-text-secondary mt-1">{cardCount} {language === 'zh' ? '张卡片' : 'cards'}</span>
-                  </>
+                      <p className="text-xs text-text-secondary line-clamp-1">{deck.description}</p>
+                      <span className="text-xs text-text-secondary mt-1">{cardCount} {language === 'zh' ? '张卡片' : 'cards'}</span>
+                    </>
+                  )}
+                </motion.div>
+
+                {/* Action buttons revealed on expand */}
+                {!sidebarCollapsed && (
+                  <div className="absolute right-0 top-0 h-full flex items-center gap-1 pr-3 bg-bg-primary">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAddCardDeckId(deck.id);
+                        setShowAddCard(true);
+                        setExpandedDeckId(null);
+                      }}
+                      className="p-2 hover:bg-accent/10 rounded transition-colors"
+                      title={language === 'zh' ? '添加卡片' : 'Add card'}
+                    >
+                      <Plus className="w-4 h-4 text-accent" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Pin functionality placeholder
+                        setExpandedDeckId(null);
+                      }}
+                      className="p-2 hover:bg-accent/10 rounded transition-colors"
+                      title={language === 'zh' ? '置顶' : 'Pin'}
+                    >
+                      <Pin className="w-4 h-4 text-text-secondary" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeleteConfirm(deck.id);
+                        setExpandedDeckId(null);
+                      }}
+                      className="p-2 hover:bg-red-500/10 rounded transition-colors"
+                      title={language === 'zh' ? '删除' : 'Delete'}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  </div>
                 )}
               </button>
             );

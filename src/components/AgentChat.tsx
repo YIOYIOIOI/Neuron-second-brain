@@ -97,12 +97,15 @@ export function AgentChat() {
           <motion.button
             drag
             dragMomentum={false}
+            dragElastic={0}
+            onDragStart={(e) => e.preventDefault()}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             onClick={() => setIsOpen(true)}
             className="fixed bottom-6 right-6 w-14 h-14 bg-accent text-white rounded-full shadow-lg flex items-center justify-center z-50 hover:bg-accent/90 transition-colors cursor-move"
+            style={{ touchAction: 'none' }}
           >
             <Bot className="w-6 h-6" />
           </motion.button>
@@ -118,8 +121,8 @@ export function AgentChat() {
             exit={{ opacity: 0, scale: 0.9 }}
             style={!isSidebar ? { transform: `translate(${position.x}px, ${position.y}px)` } : {}}
             className={cn(
-              "bg-bg-primary border border-border-subtle shadow-2xl overflow-hidden z-50 flex flex-col",
-              isSidebar ? "fixed right-0 top-16 h-[calc(100vh-4rem)] w-80" : "fixed bottom-6 right-6 w-96 rounded-2xl",
+              "bg-bg-primary border border-border-subtle shadow-2xl overflow-hidden flex flex-col",
+              isSidebar ? "fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 z-[60]" : "fixed bottom-6 right-6 w-96 rounded-2xl z-50",
               isMinimized && !isSidebar && "h-14",
               !isMinimized && !isSidebar && "h-[480px]"
             )}
