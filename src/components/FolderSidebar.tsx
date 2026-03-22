@@ -171,6 +171,10 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
       }
     } else if (draggedKnowledgeId) {
       moveKnowledgeToFolder(draggedKnowledgeId, targetFolderId);
+      if (targetFolderId) {
+        setExpandedFolders(prev => new Set([...prev, targetFolderId]));
+        onSelectFolder(targetFolderId);
+      }
     }
   };
 

@@ -133,6 +133,9 @@ export default function Review() {
                   className="w-full px-4 py-2 border border-border-subtle rounded-lg mb-4 focus:outline-none focus:border-text-primary resize-none"
                   rows={3}
                 />
+                <div className="mb-4 p-3 bg-bg-secondary/50 rounded-lg border border-border-subtle">
+                  <p className="text-xs text-text-secondary mb-2">{language === 'zh' ? '💡 提示：创建后可以从知识详情页添加卡片到此复习库' : '💡 Tip: After creating, add cards from knowledge detail pages'}</p>
+                </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowCreateDeck(false)}

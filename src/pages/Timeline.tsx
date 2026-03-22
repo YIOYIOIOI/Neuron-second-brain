@@ -15,7 +15,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { KnowledgeItem } from '../types';
 import {
   Search, Calendar, BarChart3, List, ChevronLeft, ChevronRight,
-  Edit2, Star, StarOff, X, Filter
+  Edit2, Star, StarOff, X, Filter, Pin, PinOff
 } from 'lucide-react';
 import { cn } from '../components/Navbar';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
@@ -32,7 +32,7 @@ type GroupedItems = {
 };
 
 export default function Timeline() {
-  const { knowledgeList, updateKnowledge } = useStore();
+  const { knowledgeList, updateKnowledge, pinnedCards, pinCard, unpinCard } = useStore();
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -248,6 +248,25 @@ export default function Timeline() {
 
                 {/* Quick actions */}
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => {
+                      const isPinned = pinnedCards.some(c => c.id === item.id);
+                      if (isPinned) {
+                        unpinCard(item.id);
+                      } else {
+                        pinCard({ id: item.id, title: item.title, summary: item.summary });
+                      }
+                    }}
+                    className={cn(
+                      "p-2 rounded-md transition-colors",
+                      pinnedCards.some(c => c.id === item.id)
+                        ? "bg-text-primary text-bg-primary"
+                        : "hover:bg-bg-secondary text-text-secondary"
+                    )}
+                    title={pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
+                  >
+                    {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+                  </button>
                   <button
                     onClick={() => toggleMilestone(item.id, !!item.isMilestone)}
                     className={cn(

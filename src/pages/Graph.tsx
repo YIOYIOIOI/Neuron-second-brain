@@ -4,8 +4,9 @@ import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import * as d3 from 'd3';
-import { X, Pin, PinOff, PenTool, ChevronRight, ChevronLeft } from 'lucide-react';
+import { X, Pin, PinOff } from 'lucide-react';
 import { cn } from '../components/Navbar';
+import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 
 interface GraphNode extends d3.SimulationNodeDatum {
   id: string;
@@ -17,43 +18,6 @@ interface GraphNode extends d3.SimulationNodeDatum {
 interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
   source: string | GraphNode;
   target: string | GraphNode;
-}
-
-// Mini card component for pinned cards in sidebar
-function PinnedCard({
-  node,
-  onUnpin,
-  onView
-}: {
-  node: GraphNode;
-  onUnpin: () => void;
-  onView: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      className="p-3 bg-bg-secondary/50 rounded-lg border border-border-subtle hover:border-text-secondary/30 transition-colors group"
-    >
-      <div className="flex items-start justify-between mb-2">
-        <h4
-          className="font-medium text-sm cursor-pointer hover:text-accent transition-colors line-clamp-1"
-          onClick={onView}
-        >
-          {node.title}
-        </h4>
-        <button
-          onClick={onUnpin}
-          className="p-1 opacity-0 group-hover:opacity-100 hover:bg-border-subtle rounded transition-all"
-          title="Unpin"
-        >
-          <PinOff className="w-3 h-3" />
-        </button>
-      </div>
-      <p className="text-xs text-text-secondary line-clamp-2">{node.summary}</p>
-    </motion.div>
-  );
 }
 
 // Detail card component
@@ -139,17 +103,12 @@ function NodeDetailCard({
 export default function Graph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { knowledgeList, setEditorState, pinnedCards, pinCard, unpinCard } = useStore();
+  const { knowledgeList, pinnedCards, pinCard, unpinCard } = useStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(pinnedCards.length > 0);
-
-  useEffect(() => {
-    setSidebarOpen(pinnedCards.length > 0);
-  }, [pinnedCards.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 100);
@@ -371,67 +330,7 @@ export default function Graph() {
         </div>
       </div>
 
-      {/* Right sidebar for pinned cards */}
-      <motion.div
-        initial={false}
-        animate={{ width: sidebarOpen ? 320 : 0 }}
-        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="border-l border-border-subtle bg-bg-primary shadow-xl flex flex-col relative overflow-hidden z-[60]"
-      >
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col h-full w-80"
-          >
-            {/* Header */}
-            <div className="p-4 border-b border-border-subtle">
-              <h3 className="text-sm font-medium mb-1">
-                {t('pinnedCards')} ({pinnedCards.length})
-              </h3>
-            </div>
-
-            {/* Pinned cards list */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              <AnimatePresence>
-                {pinnedCards.length === 0 ? (
-                  <p className="text-text-secondary text-sm">{t('noPinnedCards')}</p>
-                ) : (
-                  pinnedCards.map(node => (
-                    <PinnedCard
-                      key={node.id}
-                      node={node}
-                      onUnpin={() => unpinCard(node.id)}
-                      onView={() => navigate(`/note/${node.id}`)}
-                    />
-                  ))
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Write button */}
-            {pinnedCards.length > 0 && (
-              <div className="p-4 border-t border-border-subtle">
-                <button
-                  onClick={handleWriteWithPinned}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors text-sm font-medium"
-                >
-                  <PenTool className="w-4 h-4" />
-                  {t('writeWithSelected')}
-                </button>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* Toggle button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute -left-8 top-4 w-8 h-12 bg-bg-primary border border-r-0 border-border-subtle rounded-l-lg flex items-center justify-center hover:bg-bg-secondary transition-colors shadow-lg"
-        >
-          {sidebarOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
-      </motion.div>
+      <PinnedCardsSidebar />
     </div>
   );
 }
