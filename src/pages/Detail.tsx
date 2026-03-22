@@ -32,8 +32,6 @@ export default function Detail() {
   const [showRefSearch, setShowRefSearch] = useState(false);
   const [refSearchQuery, setRefSearchQuery] = useState('');
   const [showReviewCardModal, setShowReviewCardModal] = useState(false);
-  const [reviewQuestion, setReviewQuestion] = useState('');
-  const [reviewAnswer, setReviewAnswer] = useState('');
   const [selectedDeckId, setSelectedDeckId] = useState('');
 
   useEffect(() => {
@@ -168,15 +166,15 @@ export default function Detail() {
   };
 
   const handleCreateReviewCard = () => {
-    if (!reviewQuestion.trim() || !reviewAnswer.trim() || !selectedDeckId || !id) {
-      toast.error(language === 'zh' ? '请填写完整信息' : 'Please fill in all fields');
+    if (!selectedDeckId || !id || !item) {
+      toast.error(language === 'zh' ? '请选择复习库' : 'Please select a deck');
       return;
     }
 
     const newCard: ReviewCard = {
       id: crypto.randomUUID(),
-      question: reviewQuestion.trim(),
-      answer: reviewAnswer.trim(),
+      question: item.title,
+      answer: item.content,
       sourceKnowledgeId: id,
       deckId: selectedDeckId,
       createdAt: new Date().toISOString(),
@@ -187,10 +185,8 @@ export default function Detail() {
 
     addReviewCard(newCard);
     setShowReviewCardModal(false);
-    setReviewQuestion('');
-    setReviewAnswer('');
     setSelectedDeckId('');
-    toast.success(language === 'zh' ? '复习卡片已创建' : 'Review card created');
+    toast.success(language === 'zh' ? '已添加到复习库' : 'Added to review deck');
   };
 
   const handleAddTag = (e: React.KeyboardEvent) => {
@@ -612,26 +608,11 @@ export default function Detail() {
                 </select>
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm text-text-secondary mb-2">{t('reviewQuestion')}</label>
-                <textarea
-                  value={reviewQuestion}
-                  onChange={(e) => setReviewQuestion(e.target.value)}
-                  placeholder={language === 'zh' ? '输入问题...' : 'Enter question...'}
-                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary resize-none"
-                  rows={3}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm text-text-secondary mb-2">{t('reviewAnswer')}</label>
-                <textarea
-                  value={reviewAnswer}
-                  onChange={(e) => setReviewAnswer(e.target.value)}
-                  placeholder={language === 'zh' ? '输入答案...' : 'Enter answer...'}
-                  className="w-full px-4 py-2 border border-border-subtle rounded-lg focus:outline-none focus:border-text-primary resize-none"
-                  rows={4}
-                />
+              <div className="mb-6 p-4 bg-bg-secondary/50 rounded-lg border border-border-subtle">
+                <p className="text-xs text-text-secondary mb-2">{language === 'zh' ? '问题' : 'Question'}</p>
+                <p className="text-sm font-medium mb-3">{item?.title}</p>
+                <p className="text-xs text-text-secondary mb-2">{language === 'zh' ? '答案' : 'Answer'}</p>
+                <p className="text-sm line-clamp-3">{item?.content}</p>
               </div>
 
               <div className="flex gap-3">

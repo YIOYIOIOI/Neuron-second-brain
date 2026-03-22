@@ -358,12 +358,13 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
         {/* Folder tree - root folders */}
         {rootFolders.map(folder => renderFolder(folder))}
 
-        {/* Uncategorized - only show if there are folders AND uncategorized items */}
-        {rootFolders.length > 0 && uncategorizedCount > 0 && (
+        {/* Uncategorized - always show */}
+        {uncategorizedCount > 0 && (
           <button
             onClick={() => onSelectFolder('uncategorized')}
             className={cn(
-              "w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-sm transition-colors mt-2 border-t border-border-subtle/30 pt-3",
+              "w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-sm transition-colors",
+              rootFolders.length > 0 && "mt-2 border-t border-border-subtle/30 pt-3",
               activeFolderId === 'uncategorized' ? "bg-accent/10 text-accent" : "hover:bg-bg-secondary"
             )}
           >

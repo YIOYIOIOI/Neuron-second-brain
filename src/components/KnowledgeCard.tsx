@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Pin, PinOff } from 'lucide-react';
+import { ArrowUpRight, Pin, PinOff, FileText, Lightbulb } from 'lucide-react';
 import { KnowledgeItem } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { useStore } from '../store/useStore';
@@ -35,6 +35,7 @@ export function KnowledgeCard({ item }: Props) {
   const importanceScore = Math.round(
     (item.content.length * 0.01) + ((item.backlinks?.length || 0) * 5) + ((item.accessCount || 0) * 2)
   );
+  const itemType = item.type || 'note';
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('knowledge-id', item.id);
@@ -63,7 +64,14 @@ export function KnowledgeCard({ item }: Props) {
           onClick={(e) => isDragging && e.preventDefault()}
         >
           <div className="flex justify-between items-center mb-6 text-xs uppercase tracking-widest font-mono text-text-secondary border-b border-border-subtle pb-4">
-            <span>{dateStr}</span>
+            <div className="flex items-center gap-3">
+              {itemType === 'concept' ? (
+                <Lightbulb className="w-3.5 h-3.5 text-accent" />
+              ) : (
+                <FileText className="w-3.5 h-3.5" />
+              )}
+              <span>{dateStr}</span>
+            </div>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1" title={t('importance')}>
                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />

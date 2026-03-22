@@ -145,7 +145,11 @@ export default function Graph() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(pinnedCards.length > 0);
+
+  useEffect(() => {
+    setSidebarOpen(pinnedCards.length > 0);
+  }, [pinnedCards.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 100);
@@ -221,10 +225,10 @@ export default function Graph() {
     const container = svg.append('g');
 
     const simulation = d3.forceSimulation<GraphNode>(nodes)
-      .force('link', d3.forceLink<GraphNode, GraphLink>(links).id(d => d.id).distance(150))
-      .force('charge', d3.forceManyBody().strength(-400))
+      .force('link', d3.forceLink<GraphNode, GraphLink>(links).id(d => d.id).distance(80))
+      .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(60));
+      .force('collision', d3.forceCollide().radius(50));
 
     const link = container.append('g')
       .selectAll('line')
