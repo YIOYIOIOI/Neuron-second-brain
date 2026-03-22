@@ -130,7 +130,7 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute bottom-full left-0 mb-2 w-full bg-bg-primary border border-border-subtle rounded-lg shadow-xl overflow-hidden z-50"
+          className="absolute bottom-full left-0 mb-2 w-full bg-bg-primary border border-border-subtle rounded-lg shadow-xl overflow-hidden z-[100]"
         >
           {themeOptions.map(option => (
             <button

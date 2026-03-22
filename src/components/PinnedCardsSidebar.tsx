@@ -33,7 +33,7 @@ export function PinnedCardsSidebar() {
         initial={{ x: 320 }}
         animate={{ x: isCollapsed ? 320 : 0 }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-bg-primary border-l border-border-subtle shadow-xl z-40 flex items-center justify-center"
+        className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-bg-primary border-l border-border-subtle shadow-xl z-[60] flex items-center justify-center"
       >
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -52,7 +52,7 @@ export function PinnedCardsSidebar() {
       animate={{ x: isCollapsed ? 240 : 0 }}
       exit={{ x: 300 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-bg-primary border-l border-border-subtle shadow-xl z-40 flex flex-col"
+      className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-bg-primary border-l border-border-subtle shadow-xl z-[60] flex flex-col"
     >
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}

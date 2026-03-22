@@ -372,7 +372,7 @@ export default function Graph() {
         initial={false}
         animate={{ width: sidebarOpen ? 320 : 0 }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="border-l border-border-subtle bg-bg-primary shadow-xl flex flex-col relative overflow-hidden"
+        className="border-l border-border-subtle bg-bg-primary shadow-xl flex flex-col relative overflow-hidden z-[60]"
       >
         {sidebarOpen && (
           <motion.div

@@ -28,7 +28,7 @@ export default function Login() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-md"
       >
-        <h1 className="text-5xl font-serif tracking-tighter mb-8 text-center">SB.</h1>
+        <h1 className="text-5xl font-serif tracking-tighter mb-8 text-center">Neuron.</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <label htmlFor="username" className="text-xs uppercase tracking-widest font-mono text-text-secondary">
