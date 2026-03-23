@@ -163,6 +163,14 @@ export function Navbar() {
   const [isResizing, setIsResizing] = useState(false);
   const navRef = useRef<HTMLElement>(null);
 
+  // Restore default width when expanding
+  const handleToggleSidebar = () => {
+    if (sidebarCollapsed && navbarWidth < 180) {
+      setNavbarWidth(220);
+    }
+    toggleSidebar();
+  };
+
   useEffect(() => {
     if (!isResizing) return;
 
@@ -261,7 +269,7 @@ export function Navbar() {
 
         {/* Collapse button */}
         <ActionButton
-          onClick={toggleSidebar}
+          onClick={handleToggleSidebar}
           icon={sidebarCollapsed ? ChevronsRight : ChevronsLeft}
           label={sidebarCollapsed ? t('expandTags') : t('collapseTags')}
           collapsed={sidebarCollapsed}
