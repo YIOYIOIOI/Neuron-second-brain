@@ -15,17 +15,18 @@ export default function Detail() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed, navbarWidth, folderSidebarWidth, setFolderSidebarWidth } = useStore();
+  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed, navbarWidth, folderSidebarWidth, setFolderSidebarWidth, splitViewKnowledgeId } = useStore();
   const { t, language } = useTranslation();
 
-  const item = knowledgeList.find((n) => n.id === id);
+  const actualId = splitViewKnowledgeId || id;
+  const item = knowledgeList.find((n) => n.id === actualId);
 
   // Redirect to canvas if type is canvas
   useEffect(() => {
-    if (item?.type === 'canvas') {
-      navigate(`/note/canvas/${id}`, { replace: true });
+    if (item?.type === 'canvas' && !splitViewKnowledgeId) {
+      navigate(`/note/canvas/${actualId}`, { replace: true });
     }
-  }, [item, id, navigate]);
+  }, [item, actualId, navigate, splitViewKnowledgeId]);
 
   const [isEditing, setIsEditing] = useState(true);
   const [editTitle, setEditTitle] = useState('');
@@ -95,10 +96,10 @@ export default function Detail() {
   }, [id]);
 
   useEffect(() => {
-    if (id) {
-      incrementAccessCount(id);
+    if (actualId) {
+      incrementAccessCount(actualId);
     }
-  }, [id, incrementAccessCount]);
+  }, [actualId, incrementAccessCount]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -125,9 +126,9 @@ export default function Detail() {
 
   // Auto-save
   useEffect(() => {
-    if (!id) return;
+    if (!actualId || splitViewKnowledgeId) return;
     const timer = setTimeout(() => {
-      updateKnowledge(id, {
+      updateKnowledge(actualId, {
         title: editTitle,
         summary: editSummary,
         content: editContent,
@@ -137,13 +138,13 @@ export default function Detail() {
       });
     }, 1000);
     return () => clearTimeout(timer);
-  }, [editTitle, editSummary, editContent, editTags, editReferences, id, updateKnowledge]);
+  }, [editTitle, editSummary, editContent, editTags, editReferences, actualId, updateKnowledge, splitViewKnowledgeId]);
 
   // Filter knowledge for reference search
   const filteredKnowledgeForRef = useMemo(() => {
     if (!refSearchQuery.trim()) return [];
     return knowledgeList
-      .filter(k => k.id !== id) // Exclude current item
+      .filter(k => k.id !== actualId) // Exclude current item
       .filter(k => !editReferences.includes(k.id)) // Exclude already referenced
       .filter(k =>
         k.title.toLowerCase().includes(refSearchQuery.toLowerCase()) ||
@@ -216,7 +217,7 @@ export default function Detail() {
   const readTime = Math.max(1, Math.ceil(item.content.split(' ').length / 200)) + ` ${t('readTime')}`;
 
   const handleSave = () => {
-    if (id) {
+    if (actualId) {
       const currentVersion = {
         title: item.title,
         content: item.content,
@@ -226,7 +227,7 @@ export default function Detail() {
 
       const newVersions = item.versions ? [currentVersion, ...item.versions] : [currentVersion];
 
-      updateKnowledge(id, {
+      updateKnowledge(actualId, {
         title: editTitle,
         summary: editSummary,
         content: editContent,
@@ -241,7 +242,7 @@ export default function Detail() {
   };
 
   const handleCreateReviewCard = () => {
-    if (!selectedDeckId || !id || !item) {
+    if (!selectedDeckId || !actualId || !item) {
       toast.error(language === 'zh' ? '请选择复习库' : 'Please select a deck');
       return;
     }
@@ -250,7 +251,7 @@ export default function Detail() {
       id: crypto.randomUUID(),
       question: item.title,
       answer: item.content,
-      sourceKnowledgeId: id,
+      sourceKnowledgeId: actualId,
       deckId: selectedDeckId,
       createdAt: new Date().toISOString(),
       nextReviewDate: new Date().toISOString(),
@@ -343,6 +344,7 @@ export default function Detail() {
 
   return (
     <>
+      {!splitViewKnowledgeId && (
       <div className="relative min-h-screen">
         {/* Floating Folder Sidebar - Dynamic Island Style */}
         <div
@@ -406,6 +408,8 @@ export default function Detail() {
             </button>
           </motion.div>
         </div>
+      </div>
+      )}
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -413,7 +417,7 @@ export default function Detail() {
           transition={{ duration: 0.4 }}
           className="min-h-screen mx-auto transition-all duration-300 max-w-full"
           style={{
-            marginLeft: showFolderSidebar ? `${actualNavbarWidth + folderSidebarWidth + 40}px` : `${actualNavbarWidth + 40}px`,
+            marginLeft: splitViewKnowledgeId ? '0' : (showFolderSidebar ? `${actualNavbarWidth + folderSidebarWidth + 40}px` : `${actualNavbarWidth + 40}px`),
             paddingRight: '16px'
           }}
         >
@@ -428,8 +432,9 @@ export default function Detail() {
           translateX: scrollY > 50 ? '-50%' : '0'
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="sticky top-4 bg-bg-secondary/95 backdrop-blur-md z-20 py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border border-border-subtle shadow-lg"
+        className="sticky bg-bg-secondary/95 backdrop-blur-md z-[100] py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border border-border-subtle shadow-lg"
         style={{
+          top: scrollY > 50 ? '72px' : '0',
           marginTop: scrollY > 50 ? '8px' : '0',
           marginBottom: scrollY > 50 ? '16px' : '0'
         }}

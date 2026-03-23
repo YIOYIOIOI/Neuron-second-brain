@@ -2,24 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { useParams, useNavigate, Routes, Route } from 'react-router-dom';
 import Detail from '../pages/Detail';
-
-function SplitViewContent() {
-  const { splitViewKnowledgeId } = useStore();
-  return <Detail key={splitViewKnowledgeId} />;
-}
 
 export function SplitView() {
   const { splitViewOpen, splitViewWidth, splitViewKnowledgeId, setSplitViewOpen, setSplitViewWidth } = useStore();
   const [isResizing, setIsResizing] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (splitViewOpen && splitViewKnowledgeId) {
-      navigate(`/note/${splitViewKnowledgeId}`, { replace: false });
-    }
-  }, [splitViewKnowledgeId, splitViewOpen]);
 
   useEffect(() => {
     if (!isResizing) return;
@@ -50,21 +37,21 @@ export function SplitView() {
         animate={{ x: 0 }}
         exit={{ x: splitViewWidth }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed right-0 top-14 h-[calc(100vh-3.5rem)] bg-bg-primary border-l border-border-subtle shadow-2xl z-50 overflow-hidden"
+        className="fixed right-0 top-14 h-[calc(100vh-3.5rem)] bg-bg-primary border-l border-border-subtle shadow-2xl z-[60] overflow-hidden"
         style={{ width: splitViewWidth }}
       >
         <div
           onMouseDown={() => setIsResizing(true)}
-          className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors z-50"
+          className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors z-[70]"
         />
         <button
           onClick={() => setSplitViewOpen(false)}
-          className="absolute top-4 right-4 z-50 p-2 bg-bg-secondary hover:bg-border-subtle rounded-lg transition-colors"
+          className="absolute top-4 right-4 z-[70] p-2 bg-bg-secondary hover:bg-border-subtle rounded-lg transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
-        <div className="h-full overflow-y-auto">
-          <SplitViewContent />
+        <div className="h-full overflow-y-auto pt-14">
+          <Detail key={splitViewKnowledgeId} />
         </div>
       </motion.div>
     </AnimatePresence>
