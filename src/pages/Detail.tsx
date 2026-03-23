@@ -3,7 +3,7 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { ArrowLeft, Sparkles, Download, BookOpen, Pin, PinOff, X, Plus, Search, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Sparkles, Download, BookOpen, Pin, PinOff, X, Plus, Search, MoreVertical, FileText } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { AdvancedBlockEditor } from '../components/editor/AdvancedBlockEditor';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
@@ -11,22 +11,26 @@ import { FolderSidebar } from '../components/FolderSidebar';
 import { ReviewCard } from '../types';
 import toast from 'react-hot-toast';
 
-export default function Detail() {
-  const { id } = useParams();
+interface DetailProps {
+  knowledgeId?: string;
+}
+
+export default function Detail({ knowledgeId }: DetailProps = {}) {
+  const { id: urlId } = useParams();
+  const id = knowledgeId || urlId;
   const location = useLocation();
   const navigate = useNavigate();
-  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed, navbarWidth, folderSidebarWidth, setFolderSidebarWidth, splitViewKnowledgeId } = useStore();
+  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed, navbarWidth, folderSidebarWidth, setFolderSidebarWidth, splitViewKnowledgeId, setSplitViewKnowledgeId, setSplitViewOpen } = useStore();
   const { t, language } = useTranslation();
 
-  const actualId = splitViewKnowledgeId || id;
-  const item = knowledgeList.find((n) => n.id === actualId);
+  const item = knowledgeList.find((n) => n.id === id);
 
   // Redirect to canvas if type is canvas
   useEffect(() => {
-    if (item?.type === 'canvas' && !splitViewKnowledgeId) {
-      navigate(`/note/canvas/${actualId}`, { replace: true });
+    if (item?.type === 'canvas') {
+      navigate(`/note/canvas/${id}`, { replace: true });
     }
-  }, [item, actualId, navigate, splitViewKnowledgeId]);
+  }, [item, id, navigate]);
 
   const [isEditing, setIsEditing] = useState(true);
   const [editTitle, setEditTitle] = useState('');
@@ -90,17 +94,21 @@ export default function Detail() {
   const actualNavbarWidth = sidebarCollapsed ? 64 : navbarWidth;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (!knowledgeId) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 150);
+      return () => clearTimeout(timer);
+    } else {
       setIsLoading(false);
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [id]);
+    }
+  }, [id, knowledgeId]);
 
   useEffect(() => {
-    if (actualId) {
-      incrementAccessCount(actualId);
+    if (id) {
+      incrementAccessCount(id);
     }
-  }, [actualId, incrementAccessCount]);
+  }, [id, incrementAccessCount]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -127,9 +135,9 @@ export default function Detail() {
 
   // Auto-save
   useEffect(() => {
-    if (!actualId || splitViewKnowledgeId) return;
+    if (!id) return;
     const timer = setTimeout(() => {
-      updateKnowledge(actualId, {
+      updateKnowledge(id, {
         title: editTitle,
         summary: editSummary,
         content: editContent,
@@ -139,13 +147,13 @@ export default function Detail() {
       });
     }, 1000);
     return () => clearTimeout(timer);
-  }, [editTitle, editSummary, editContent, editTags, editReferences, actualId, updateKnowledge, splitViewKnowledgeId]);
+  }, [editTitle, editSummary, editContent, editTags, editReferences, id, updateKnowledge]);
 
   // Filter knowledge for reference search
   const filteredKnowledgeForRef = useMemo(() => {
     if (!refSearchQuery.trim()) return [];
     return knowledgeList
-      .filter(k => k.id !== actualId) // Exclude current item
+      .filter(k => k.id !== id) // Exclude current item
       .filter(k => !editReferences.includes(k.id)) // Exclude already referenced
       .filter(k =>
         k.title.toLowerCase().includes(refSearchQuery.toLowerCase()) ||
@@ -218,7 +226,7 @@ export default function Detail() {
   const readTime = Math.max(1, Math.ceil(item.content.split(' ').length / 200)) + ` ${t('readTime')}`;
 
   const handleSave = () => {
-    if (actualId) {
+    if (id) {
       const currentVersion = {
         title: item.title,
         content: item.content,
@@ -228,7 +236,7 @@ export default function Detail() {
 
       const newVersions = item.versions ? [currentVersion, ...item.versions] : [currentVersion];
 
-      updateKnowledge(actualId, {
+      updateKnowledge(id, {
         title: editTitle,
         summary: editSummary,
         content: editContent,
@@ -243,7 +251,7 @@ export default function Detail() {
   };
 
   const handleCreateReviewCard = () => {
-    if (!selectedDeckId || !actualId || !item) {
+    if (!selectedDeckId || !id || !item) {
       toast.error(language === 'zh' ? '请选择复习库' : 'Please select a deck');
       return;
     }
@@ -252,7 +260,7 @@ export default function Detail() {
       id: crypto.randomUUID(),
       question: item.title,
       answer: item.content,
-      sourceKnowledgeId: actualId,
+      sourceKnowledgeId: id,
       deckId: selectedDeckId,
       createdAt: new Date().toISOString(),
       nextReviewDate: new Date().toISOString(),
@@ -346,8 +354,6 @@ export default function Detail() {
   return (
     <>
       {!splitViewKnowledgeId && (
-      <div className="relative min-h-screen">
-        {/* Floating Folder Sidebar - Dynamic Island Style */}
         <div
           className="fixed top-14 bottom-0 z-30 transition-all duration-300 flex items-center"
           style={{ left: `${actualNavbarWidth}px` }}
@@ -358,7 +364,6 @@ export default function Detail() {
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative flex items-center h-full"
           >
-            {/* Island container - full height, left flush, right rounded */}
             <AnimatePresence mode="wait">
               {showFolderSidebar && (
                 <motion.div
@@ -385,7 +390,6 @@ export default function Detail() {
               )}
             </AnimatePresence>
 
-            {/* Toggle button - protruding outward on the right, vertically centered */}
             <button
               onClick={() => setShowFolderSidebar(!showFolderSidebar)}
               className="absolute top-1/2 -translate-y-1/2 w-6 h-20 bg-bg-primary border border-border-subtle border-l-0 shadow-[4px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-bg-secondary transition-colors group z-10"
@@ -409,11 +413,10 @@ export default function Detail() {
             </button>
           </motion.div>
         </div>
-      </div>
       )}
 
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={knowledgeId ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
           className="min-h-screen mx-auto transition-all duration-300 max-w-full"
@@ -422,117 +425,11 @@ export default function Detail() {
             paddingRight: '16px'
           }}
         >
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{
-          opacity: 1,
-          x: 0,
-          borderRadius: scrollY > 50 ? '24px' : '0px',
-        }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="sticky bg-bg-secondary/95 backdrop-blur-md z-[100] py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border border-border-subtle shadow-lg"
-        style={{
-          top: scrollY > 50 ? '72px' : '56px',
-          marginTop: scrollY > 50 ? '8px' : '0',
-          marginBottom: scrollY > 50 ? '16px' : '0',
-          marginLeft: scrollY > 50 ? 'auto' : '0',
-          marginRight: scrollY > 50 ? '0' : '0',
-          width: scrollY > 50 ? 'fit-content' : '100%',
-        }}
-      >
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> {scrollY > 50 ? '' : t('back')}
-        </button>
-
-        {scrollY > 50 ? (
-          <div className="relative">
-            <button
-              onClick={() => setShowActionsMenu(!showActionsMenu)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-            <AnimatePresence>
-              {showActionsMenu && (
-                <>
-                  <div className="fixed inset-0 z-[90]" onClick={() => setShowActionsMenu(false)} />
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 top-full mt-2 bg-bg-primary border border-border-subtle rounded-lg shadow-xl py-1 min-w-[160px] z-[100]"
-                  >
-                    <button
-                      onClick={() => { setShowExportModal(true); setShowActionsMenu(false); }}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" /> {t('export')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        const isPinned = pinnedCards.some(c => c.id === item.id);
-                        if (isPinned) {
-                          unpinCard(item.id);
-                        } else {
-                          pinCard({ id: item.id, title: item.title, summary: item.summary });
-                        }
-                        setShowActionsMenu(false);
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
-                    >
-                      {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
-                      {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
-                    </button>
-                    <button
-                      onClick={() => { setShowReviewCardModal(true); setShowActionsMenu(false); }}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
-                    >
-                      <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
-                    </button>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="flex gap-4">
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <Download className="w-4 h-4" /> {t('export')}
-            </button>
-            <button
-              onClick={() => {
-                const isPinned = pinnedCards.some(c => c.id === item.id);
-                if (isPinned) {
-                  unpinCard(item.id);
-                } else {
-                  pinCard({ id: item.id, title: item.title, summary: item.summary });
-                }
-              }}
-              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
-              {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
-            </button>
-            <button
-              onClick={() => setShowReviewCardModal(true)}
-              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
-            </button>
-          </div>
-        )}
-      </motion.div>
 
       <article className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 px-4 md:px-8 lg:px-16 py-8 md:py-12">
         <div className="lg:col-span-9 transition-all duration-500 ease-out">
           <motion.header
-            initial={{ opacity: 0, y: 20 }}
+            initial={knowledgeId ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="mb-12 md:mb-16 border-b border-border-subtle pb-8 md:pb-12"
@@ -560,7 +457,7 @@ export default function Detail() {
           </motion.header>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={knowledgeId ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
@@ -573,11 +470,62 @@ export default function Detail() {
         </div>
 
         <motion.aside
-          initial={{ opacity: 0, x: 20 }}
+          initial={knowledgeId ? false : { opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="lg:sticky lg:top-32 h-fit lg:col-span-3 transition-all duration-500 ease-out"
         >
+          <div className="flex items-center justify-between mb-6">
+            {!knowledgeId && (
+              <button
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" /> {t('back')}
+              </button>
+            )}
+            <div className="flex gap-2 ml-auto">
+              <button
+                onClick={() => {
+                  setSplitViewKnowledgeId(id);
+                  setSplitViewOpen(true);
+                }}
+                className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+                title={language === 'zh' ? '在侧边页打开' : 'Open in Split'}
+              >
+                <FileText className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+                title={t('export')}
+              >
+                <Download className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  const isPinned = pinnedCards.some(c => c.id === item.id);
+                  if (isPinned) {
+                    unpinCard(item.id);
+                  } else {
+                    pinCard({ id: item.id, title: item.title, summary: item.summary });
+                  }
+                }}
+                className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+                title={pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
+              >
+                {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => setShowReviewCardModal(true)}
+                className="p-2 text-text-secondary hover:text-text-primary transition-colors"
+                title={t('addToReviewDeck')}
+              >
+                <BookOpen className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
           <div className="bg-bg-secondary/50 p-4 md:p-6 lg:p-8 rounded-2xl border border-border-subtle mb-6 md:mb-8">
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-medium text-text-secondary mb-4 md:mb-6">
               <Sparkles className="w-4 h-4" /> {t('aiSummary')}
