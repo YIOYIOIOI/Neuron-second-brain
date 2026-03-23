@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import Detail from '../pages/Detail';
@@ -40,12 +39,7 @@ export function SplitView() {
   if (!splitViewOpen || !mountedKnowledgeId) return null;
 
   return (
-    <motion.div
-      key="split-view"
-      initial={{ x: splitViewWidth }}
-      animate={{ x: 0 }}
-      exit={{ x: splitViewWidth }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+    <div
       className="fixed right-0 top-14 h-[calc(100vh-3.5rem)] bg-bg-primary border-l border-border-subtle shadow-2xl z-[60] overflow-hidden"
       style={{ width: splitViewWidth }}
     >
@@ -64,6 +58,6 @@ export function SplitView() {
       <div className="h-full overflow-y-auto">
         <Detail knowledgeId={mountedKnowledgeId} key={mountedKnowledgeId} />
       </div>
-    </motion.div>
+    </div>
   );
 }
