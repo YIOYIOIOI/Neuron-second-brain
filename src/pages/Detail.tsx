@@ -3,10 +3,11 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download, BookOpen, Pin, PinOff } from 'lucide-react';
+import { ArrowLeft, Sparkles, Download, BookOpen, Pin, PinOff, X, Plus, Search } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { AdvancedBlockEditor } from '../components/editor/AdvancedBlockEditor';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
+import { FolderSidebar } from '../components/FolderSidebar';
 import { ReviewCard } from '../types';
 import toast from 'react-hot-toast';
 
@@ -14,7 +15,7 @@ export default function Detail() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard } = useStore();
+  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed } = useStore();
   const { t, language } = useTranslation();
 
   const item = knowledgeList.find((n) => n.id === id);
@@ -26,7 +27,7 @@ export default function Detail() {
     }
   }, [item, id, navigate]);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [editTitle, setEditTitle] = useState('');
   const [editSummary, setEditSummary] = useState('');
   const [editContent, setEditContent] = useState('');
@@ -40,6 +41,16 @@ export default function Detail() {
   const [showReviewCardModal, setShowReviewCardModal] = useState(false);
   const [selectedDeckId, setSelectedDeckId] = useState('');
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showFolderSidebar, setShowFolderSidebar] = useState(() => {
+    const saved = localStorage.getItem('dashboardSidebarVisible');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showFolderSidebar));
+  }, [showFolderSidebar]);
+
+  const navbarWidth = sidebarCollapsed ? 64 : 220;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,9 +67,7 @@ export default function Detail() {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('edit') === 'true') {
-      setIsEditing(true);
-    }
+    setIsEditing(true);
   }, [location.search]);
 
   useEffect(() => {
@@ -73,7 +82,7 @@ export default function Detail() {
 
   // Auto-save
   useEffect(() => {
-    if (!isEditing || !id) return;
+    if (!id) return;
     const timer = setTimeout(() => {
       updateKnowledge(id, {
         title: editTitle,
@@ -85,7 +94,7 @@ export default function Detail() {
       });
     }, 1000);
     return () => clearTimeout(timer);
-  }, [editTitle, editSummary, editContent, editTags, editReferences, isEditing, id, updateKnowledge]);
+  }, [editTitle, editSummary, editContent, editTags, editReferences, id, updateKnowledge]);
 
   // Filter knowledge for reference search
   const filteredKnowledgeForRef = useMemo(() => {
@@ -283,12 +292,77 @@ export default function Detail() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className={`min-h-screen mx-auto transition-all duration-500 ease-out ${isEditing ? 'max-w-full' : 'max-w-7xl'}`}
-    >
+    <>
+      <div className="relative min-h-screen">
+        {/* Floating Folder Sidebar - Dynamic Island Style */}
+        <div
+          className="fixed top-14 bottom-0 z-30 transition-all duration-300 flex items-center"
+          style={{ left: `${navbarWidth}px` }}
+        >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="relative flex items-center h-full"
+          >
+            {/* Island container - full height, left flush, right rounded */}
+            <AnimatePresence mode="wait">
+              {showFolderSidebar && (
+                <motion.div
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 240, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  className="h-full bg-bg-primary/98 backdrop-blur-md border-r border-border-subtle shadow-2xl overflow-hidden"
+                  style={{
+                    borderTopRightRadius: '24px',
+                    borderBottomRightRadius: '24px',
+                    borderTopLeftRadius: '0',
+                    borderBottomLeftRadius: '0',
+                  }}
+                >
+                  <div className="w-[240px] h-full">
+                    <FolderSidebar />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Toggle button - protruding outward on the right, vertically centered */}
+            <button
+              onClick={() => setShowFolderSidebar(!showFolderSidebar)}
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-20 bg-bg-primary border border-border-subtle border-l-0 shadow-[4px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-bg-secondary transition-colors group z-10"
+              style={{
+                right: 'calc(-24px + 1px)',
+                borderTopRightRadius: '12px',
+                borderBottomRightRadius: '12px',
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
+              title={showFolderSidebar ? (language === 'zh' ? '收起' : 'Collapse') : (language === 'zh' ? '展开' : 'Expand')}
+            >
+              <motion.div
+                animate={{ rotate: showFolderSidebar ? 0 : 180 }}
+                transition={{ duration: 0.2 }}
+              >
+                <svg className="w-3.5 h-3.5 text-text-secondary group-hover:text-text-primary transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </motion.div>
+            </button>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="min-h-screen mx-auto transition-all duration-300 max-w-full"
+          style={{
+            marginLeft: showFolderSidebar ? `${navbarWidth + 280}px` : `${navbarWidth + 40}px`,
+            paddingRight: '32px'
+          }}
+        >
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -309,56 +383,31 @@ export default function Detail() {
           >
             <Download className="w-4 h-4" /> {t('export')}
           </button>
-          {!isEditing ? (
-            <>
-              <button
-                onClick={() => {
-                  const isPinned = pinnedCards.some(c => c.id === item.id);
-                  if (isPinned) {
-                    unpinCard(item.id);
-                  } else {
-                    pinCard({ id: item.id, title: item.title, summary: item.summary });
-                  }
-                }}
-                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-              >
-                {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
-                {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
-              </button>
-              <button
-                onClick={() => setShowReviewCardModal(true)}
-                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-              >
-                <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
-              </button>
-              <button
-                onClick={() => setIsEditing(true)}
-                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-              >
-                <Edit2 className="w-4 h-4" /> {t('edit')}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-              >
-                <X className="w-4 h-4" /> {t('cancel')}
-              </button>
-              <button
-                onClick={handleSave}
-                className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-bg-primary bg-text-primary px-4 py-2 rounded-sm hover:bg-text-secondary transition-colors"
-              >
-                <Save className="w-4 h-4" /> {t('save')}
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => {
+              const isPinned = pinnedCards.some(c => c.id === item.id);
+              if (isPinned) {
+                unpinCard(item.id);
+              } else {
+                pinCard({ id: item.id, title: item.title, summary: item.summary });
+              }
+            }}
+            className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+          >
+            {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+            {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
+          </button>
+          <button
+            onClick={() => setShowReviewCardModal(true)}
+            className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
+          </button>
         </div>
       </motion.div>
 
       <article className="grid grid-cols-1 lg:grid-cols-12 gap-16 px-8 md:px-16 lg:px-24 py-12">
-        <div className={`transition-all duration-500 ease-out ${isEditing ? 'lg:col-span-9' : 'lg:col-span-8'}`}>
+        <div className="lg:col-span-9 transition-all duration-500 ease-out">
           <motion.header
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -371,33 +420,20 @@ export default function Detail() {
               <span>{readTime}</span>
             </div>
 
-            {isEditing ? (
-              <>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full text-3xl md:text-5xl font-serif leading-[1.1] tracking-tighter mb-6 bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary py-2"
-                  placeholder={t('title')}
-                />
-                <textarea
-                  value={editSummary}
-                  onChange={(e) => setEditSummary(e.target.value)}
-                  className="w-full text-lg font-light text-text-secondary leading-relaxed bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary resize-none py-2"
-                  placeholder="Summary..."
-                  rows={2}
-                />
-              </>
-            ) : (
-              <>
-                <h1 className="text-5xl md:text-7xl font-serif leading-[1.1] tracking-tighter mb-8">
-                  {item.title}
-                </h1>
-                <p className="text-xl md:text-2xl font-light text-text-secondary leading-relaxed">
-                  {item.summary}
-                </p>
-              </>
-            )}
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full text-3xl md:text-5xl font-serif leading-[1.1] tracking-tighter mb-6 bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary py-2"
+              placeholder={t('title')}
+            />
+            <textarea
+              value={editSummary}
+              onChange={(e) => setEditSummary(e.target.value)}
+              className="w-full text-lg font-light text-text-secondary leading-relaxed bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary resize-none py-2"
+              placeholder="Summary..."
+              rows={2}
+            />
           </motion.header>
 
           <motion.div
@@ -405,23 +441,11 @@ export default function Detail() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            {isEditing ? (
-              <AdvancedBlockEditor
-                content={editContent}
-                onChange={setEditContent}
-                placeholder={t('content') || 'Type / for commands, @ to mention'}
-              />
-            ) : (
-              <div className="prose prose-lg md:prose-xl prose-stone max-w-none font-sans font-light leading-loose text-text-primary">
-                {item.content.includes('<') ? (
-                  <div dangerouslySetInnerHTML={{ __html: item.content }} />
-                ) : (
-                  item.content.split('\n\n').map((paragraph, idx) => (
-                    <p key={idx} className="mb-8">{paragraph}</p>
-                  ))
-                )}
-              </div>
-            )}
+            <AdvancedBlockEditor
+              content={editContent}
+              onChange={setEditContent}
+              placeholder={t('content') || 'Type / for commands, @ to mention'}
+            />
           </motion.div>
         </div>
 
@@ -429,7 +453,7 @@ export default function Detail() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className={`lg:sticky lg:top-32 h-fit transition-all duration-500 ease-out ${isEditing ? 'lg:col-span-3' : 'lg:col-span-4'}`}
+          className="lg:sticky lg:top-32 h-fit lg:col-span-3 transition-all duration-500 ease-out"
         >
           <div className="bg-bg-secondary/50 p-8 rounded-2xl border border-border-subtle mb-8">
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-medium text-text-secondary mb-6">
@@ -443,48 +467,27 @@ export default function Detail() {
           <div className="mb-8">
             <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-6 border-b border-border-subtle pb-4">{t('tags')}</h3>
             <div className="flex flex-wrap gap-2">
-              {isEditing ? (
-                <>
-                  {editTags.map(tag => (
-                    <span key={tag} className="flex items-center gap-1 text-xs uppercase tracking-wider font-medium text-text-secondary bg-bg-secondary px-3 py-1.5 rounded-sm">
-                      {tag}
-                      <button onClick={() => removeTag(tag)} className="hover:text-text-primary"><X className="w-3 h-3" /></button>
-                    </span>
-                  ))}
-                  <input
-                    type="text"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyDown={handleAddTag}
-                    placeholder={t('addTag')}
-                    className="text-xs uppercase tracking-wider font-medium bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary w-full mt-2 py-1"
-                  />
-                </>
-              ) : (
-                <>
-                  {(expandedTags ? item.tags : item.tags.slice(0, 5)).map(tag => (
-                    <span key={tag} className="text-xs uppercase tracking-wider font-medium text-text-secondary bg-bg-secondary px-3 py-1.5 rounded-sm hover:bg-text-primary hover:text-bg-primary transition-colors cursor-pointer">
-                      {tag}
-                    </span>
-                  ))}
-                  {item.tags.length > 5 && (
-                    <button
-                      onClick={() => setExpandedTags(!expandedTags)}
-                      className="text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-text-primary transition-colors px-2"
-                    >
-                      {expandedTags ? t('collapseTags') : `+${item.tags.length - 5} ${t('expandTags')}`}
-                    </button>
-                  )}
-                </>
-              )}
+              {editTags.map(tag => (
+                <span key={tag} className="flex items-center gap-1 text-xs uppercase tracking-wider font-medium text-text-secondary bg-bg-secondary px-3 py-1.5 rounded-sm">
+                  {tag}
+                  <button onClick={() => removeTag(tag)} className="hover:text-text-primary"><X className="w-3 h-3" /></button>
+                </span>
+              ))}
+              <input
+                type="text"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyDown={handleAddTag}
+                placeholder={t('addTag')}
+                className="text-xs uppercase tracking-wider font-medium bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary w-full mt-2 py-1"
+              />
             </div>
           </div>
 
           {/* References Section */}
           <div className="mb-8">
             <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-6 border-b border-border-subtle pb-4">{t('references')}</h3>
-            {isEditing ? (
-              <div className="space-y-3">
+            <div className="space-y-3">
                 {editReferenceItems.map(ref => (
                   <div key={ref.id} className="flex items-center justify-between gap-2 p-2 bg-bg-secondary/50 rounded-md group">
                     <span className="text-sm font-serif line-clamp-1">{ref.title}</span>
@@ -549,19 +552,6 @@ export default function Detail() {
                   )}
                 </div>
               </div>
-            ) : references.length > 0 ? (
-              <ul className="flex flex-col gap-3">
-                {references.map(ref => (
-                  <li key={ref.id}>
-                    <Link to={`/note/${ref.id}`} className="text-sm font-serif hover:text-accent transition-colors line-clamp-2">
-                      {ref.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-text-secondary">{language === 'zh' ? '暂无引用' : 'No references'}</p>
-            )}
           </div>
 
           {backlinks.length > 0 && (
@@ -593,7 +583,6 @@ export default function Detail() {
                         setEditTitle(version.title);
                         setEditContent(version.content);
                         setEditTags(version.tags);
-                        setIsEditing(true);
                       }}
                       className="text-sm font-serif text-left hover:text-accent transition-colors line-clamp-2"
                     >
@@ -622,8 +611,6 @@ export default function Detail() {
           </div>
         </motion.section>
       )}
-
-      <PinnedCardsSidebar />
 
       {/* Review Card Modal */}
       <AnimatePresence>
@@ -730,5 +717,8 @@ export default function Detail() {
         )}
       </AnimatePresence>
     </motion.div>
+    </div>
+    <PinnedCardsSidebar />
+    </>
   );
 }
