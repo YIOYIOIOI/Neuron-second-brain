@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'motion/react';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Dashboard() {
-  const { knowledgeList, searchQuery, selectedTags, activeFolderId, setActiveFolderId, folders, sidebarCollapsed, knowledgeTypeFilter, sortBy } = useStore();
+  const { knowledgeList, searchQuery, selectedTags, activeFolderId, setActiveFolderId, folders, sidebarCollapsed, knowledgeTypeFilter, sortBy, navbarWidth, folderSidebarWidth, setFolderSidebarWidth } = useStore();
   const { t, language } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +23,7 @@ export default function Dashboard() {
     const saved = localStorage.getItem('dashboardSidebarVisible');
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showSidebar));
@@ -40,8 +41,26 @@ export default function Dashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(180, Math.min(400, e.clientX - navbarWidth));
+      setFolderSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => setIsResizing(false);
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, navbarWidth, setFolderSidebarWidth]);
+
   // Calculate the left position based on main Navbar state
-  const navbarWidth = sidebarCollapsed ? 64 : 220;
+  const actualNavbarWidth = sidebarCollapsed ? 64 : navbarWidth;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -130,7 +149,7 @@ export default function Dashboard() {
       {/* Floating Folder Sidebar - Dynamic Island Style */}
       <div
         className="fixed top-14 bottom-0 z-30 transition-all duration-300 flex items-center"
-        style={{ left: `${navbarWidth}px` }}
+        style={{ left: `${actualNavbarWidth}px` }}
       >
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -143,10 +162,10 @@ export default function Dashboard() {
             {showSidebar && (
               <motion.div
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 240, opacity: 1 }}
+                animate={{ width: folderSidebarWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="h-full bg-bg-primary/98 backdrop-blur-md border-r border-border-subtle shadow-2xl overflow-hidden"
+                className="h-full bg-bg-primary/98 backdrop-blur-md border-r border-border-subtle shadow-2xl overflow-hidden relative"
                 style={{
                   borderTopRightRadius: '24px',
                   borderBottomRightRadius: '24px',
@@ -154,12 +173,16 @@ export default function Dashboard() {
                   borderBottomLeftRadius: '0',
                 }}
               >
-                <div className="w-[240px] h-full">
+                <div style={{ width: folderSidebarWidth }} className="h-full">
                   <FolderSidebar
                     activeFolderId={activeFolderId}
                     onSelectFolder={setActiveFolderId}
                   />
                 </div>
+                <div
+                  onMouseDown={() => setIsResizing(true)}
+                  className="absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors z-10"
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -192,7 +215,7 @@ export default function Dashboard() {
       <div
         className="transition-all duration-300"
         style={{
-          marginLeft: showSidebar ? '280px' : '40px',
+          marginLeft: showSidebar ? `${folderSidebarWidth + 40}px` : '40px',
           paddingRight: '16px'
         }}
       >

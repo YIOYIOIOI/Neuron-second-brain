@@ -15,17 +15,19 @@ interface AgentChatProps {
 }
 
 export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
-  const { 
-    knowledgeList, 
-    language, 
-    isAgentOpen, 
-    setAgentOpen, 
-    isAgentSidebar, 
-    setAgentSidebar, 
-    isAgentSidebarCollapsed, 
-    setAgentSidebarCollapsed 
+  const {
+    knowledgeList,
+    language,
+    isAgentOpen,
+    setAgentOpen,
+    isAgentSidebar,
+    setAgentSidebar,
+    isAgentSidebarCollapsed,
+    setAgentSidebarCollapsed,
+    agentSidebarWidth,
+    setAgentSidebarWidth
   } = useStore();
-  
+
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -33,6 +35,7 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [buttonPos, setButtonPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const dragRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -103,6 +106,24 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
     };
   }, [isDragging]);
 
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(280, Math.min(600, window.innerWidth - e.clientX));
+      setAgentSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => setIsResizing(false);
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, setAgentSidebarWidth]);
+
   return (
     <>
       {/* Floating Button */}
@@ -148,30 +169,37 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
             exit={isAgentSidebar ? { opacity: 1, x: 400 } : { opacity: 0, scale: 0.9 }}
             style={!isAgentSidebar ? { transform: `translate(${position.x}px, ${position.y}px)` } : {}}
             className={cn(
-              "bg-bg-primary shadow-2xl flex flex-col transition-transform duration-300",
-              isAgentSidebar ? "fixed right-0 top-14 bottom-0 w-[300px] z-[60] border-l border-y-0 border-r-0 border-border-subtle rounded-l-2xl" : "fixed bottom-6 right-6 w-96 rounded-2xl z-50 overflow-hidden border border-border-subtle",
+              "bg-bg-primary shadow-2xl flex flex-col transition-transform duration-300 relative",
+              isAgentSidebar ? "fixed right-0 top-14 bottom-0 z-[60] border-l border-y-0 border-r-0 border-border-subtle rounded-l-2xl" : "fixed bottom-6 right-6 w-96 rounded-2xl z-50 overflow-hidden border border-border-subtle",
               isMinimized && !isAgentSidebar && "h-14",
               !isMinimized && !isAgentSidebar && "h-[480px]",
               isAgentSidebar && isAgentSidebarCollapsed && "translate-x-full"
             )}
+            style={isAgentSidebar ? { width: agentSidebarWidth } : undefined}
           >
             {/* Sidebar Toggle Button */}
             {isAgentSidebar && (
-              <button
-                onClick={() => setAgentSidebarCollapsed(!isAgentSidebarCollapsed)}
-                className="absolute top-1/2 -translate-y-1/2 w-6 h-20 bg-bg-primary border border-border-subtle border-r-0 flex items-center justify-center hover:bg-bg-secondary transition-colors z-[70] shadow-[-4px_0_8px_rgba(0,0,0,0.05)] group"
-                style={{
-                  right: 'calc(100% - 1px)',
-                  borderTopLeftRadius: '12px',
-                  borderBottomLeftRadius: '12px',
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                }}
-              >
-                <motion.div animate={{ rotate: isAgentSidebarCollapsed ? 0 : 180 }} transition={{ duration: 0.2 }}>
-                  <ChevronLeft className="w-4 h-4 text-text-secondary group-hover:text-text-primary transition-colors" />
-                </motion.div>
-              </button>
+              <>
+                <button
+                  onClick={() => setAgentSidebarCollapsed(!isAgentSidebarCollapsed)}
+                  className="absolute top-1/2 -translate-y-1/2 w-6 h-20 bg-bg-primary border border-border-subtle border-r-0 flex items-center justify-center hover:bg-bg-secondary transition-colors z-[70] shadow-[-4px_0_8px_rgba(0,0,0,0.05)] group"
+                  style={{
+                    right: 'calc(100% - 1px)',
+                    borderTopLeftRadius: '12px',
+                    borderBottomLeftRadius: '12px',
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                  }}
+                >
+                  <motion.div animate={{ rotate: isAgentSidebarCollapsed ? 0 : 180 }} transition={{ duration: 0.2 }}>
+                    <ChevronLeft className="w-4 h-4 text-text-secondary group-hover:text-text-primary transition-colors" />
+                  </motion.div>
+                </button>
+                <div
+                  onMouseDown={() => setIsResizing(true)}
+                  className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors z-10"
+                />
+              </>
             )}
 
             {/* Header */}

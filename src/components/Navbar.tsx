@@ -9,7 +9,7 @@ import {
 import { useTranslation } from '../hooks/useTranslation';
 import { useStore } from '../store/useStore';
 import { useTheme } from '../hooks/useTheme';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -34,6 +34,7 @@ function NavItem({
   return (
     <Link
       to={to}
+      title={collapsed ? label : undefined}
       className={cn(
         "relative flex items-center py-2.5 px-3 rounded-lg transition-all duration-200 group overflow-hidden",
         isActive ? "bg-border-subtle/60" : "hover:bg-border-subtle/30 opacity-60 hover:opacity-100",
@@ -77,6 +78,7 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
+      title={collapsed ? label : undefined}
       className={cn(
         "flex items-center py-2.5 px-3 rounded-lg hover:opacity-100 hover:bg-border-subtle/30 transition-all duration-200 overflow-hidden",
         active ? "opacity-100 bg-border-subtle/30" : "opacity-50",
@@ -157,7 +159,27 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
 export function Navbar() {
   const location = useLocation();
   const { t, language } = useTranslation();
-  const { setLanguage, sidebarCollapsed, toggleSidebar } = useStore();
+  const { setLanguage, sidebarCollapsed, toggleSidebar, navbarWidth, setNavbarWidth } = useStore();
+  const [isResizing, setIsResizing] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(64, Math.min(400, e.clientX));
+      setNavbarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => setIsResizing(false);
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, setNavbarWidth]);
 
   const navItems = [
     { path: '/dashboard', label: t('dashboard'), icon: Grid },
@@ -173,8 +195,9 @@ export function Navbar() {
 
   return (
     <motion.nav
+      ref={navRef}
       initial={false}
-      animate={{ width: sidebarCollapsed ? 64 : 220 }}
+      animate={{ width: sidebarCollapsed ? 64 : navbarWidth }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       className="fixed top-0 left-0 h-full flex flex-col justify-between py-6 px-3 z-40 bg-bg-primary/90 backdrop-blur-md border-r border-border-subtle text-text-primary"
     >
@@ -245,6 +268,13 @@ export function Navbar() {
           collapsed={sidebarCollapsed}
         />
       </div>
+
+      {!sidebarCollapsed && (
+        <div
+          onMouseDown={() => setIsResizing(true)}
+          className="absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors"
+        />
+      )}
     </motion.nav>
   );
 }

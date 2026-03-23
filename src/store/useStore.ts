@@ -13,6 +13,9 @@ interface StoreState {
   editorState: string;
   selectedKnowledge: string[];
   sidebarCollapsed: boolean;
+  navbarWidth: number;
+  folderSidebarWidth: number;
+  agentSidebarWidth: number;
   theme: ThemeMode;
   folders: FolderItem[];
   activeFolderId: string | null;
@@ -46,6 +49,9 @@ interface StoreState {
   setEditorState: (state: string) => void;
   toggleSelectedKnowledge: (id: string) => void;
   toggleSidebar: () => void;
+  setNavbarWidth: (width: number) => void;
+  setFolderSidebarWidth: (width: number) => void;
+  setAgentSidebarWidth: (width: number) => void;
   importKnowledge: (items: KnowledgeItem[]) => void;
   deleteKnowledge: (id: string) => void;
   clearAllKnowledge: () => void;
@@ -82,6 +88,9 @@ export const useStore = create<StoreState>((set) => ({
   editorState: '',
   selectedKnowledge: [],
   sidebarCollapsed: false,
+  navbarWidth: Number(localStorage.getItem('navbarWidth')) || 220,
+  folderSidebarWidth: Number(localStorage.getItem('folderSidebarWidth')) || 240,
+  agentSidebarWidth: Number(localStorage.getItem('agentSidebarWidth')) || 400,
   theme: (localStorage.getItem('theme') as ThemeMode) || 'light',
   folders: JSON.parse(localStorage.getItem('folders') || '[]'),
   activeFolderId: null,
@@ -147,6 +156,18 @@ export const useStore = create<StoreState>((set) => ({
     return { selectedKnowledge: selected };
   }),
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  setNavbarWidth: (width) => {
+    localStorage.setItem('navbarWidth', String(width));
+    set({ navbarWidth: width });
+  },
+  setFolderSidebarWidth: (width) => {
+    localStorage.setItem('folderSidebarWidth', String(width));
+    set({ folderSidebarWidth: width });
+  },
+  setAgentSidebarWidth: (width) => {
+    localStorage.setItem('agentSidebarWidth', String(width));
+    set({ agentSidebarWidth: width });
+  },
   importKnowledge: (items) => set((state) => {
     const existingIds = new Set(state.knowledgeList.map(k => k.id));
     const newItems = items.filter(item => !existingIds.has(item.id));
