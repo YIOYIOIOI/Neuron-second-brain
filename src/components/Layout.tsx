@@ -29,13 +29,15 @@ export function Layout() {
       {user && <Navbar />}
       {user && <TopBar />}
       <main
-        key={location.pathname}
         className="min-h-screen pt-14 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           marginLeft: `${leftWidth}px`,
           width: `calc(100% - ${leftWidth + rightWidth + splitWidth}px)`
         }}
-      >        <Outlet />
+      >
+        <div key={location.pathname}>
+          <Outlet />
+        </div>
       </main>
       <AgentChat />
       <SplitView />
