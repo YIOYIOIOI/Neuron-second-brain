@@ -41,6 +41,9 @@ export default function Dashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Calculate the left position based on main Navbar state
+  const actualNavbarWidth = sidebarCollapsed ? 64 : navbarWidth;
+
   useEffect(() => {
     if (!isResizing) return;
 
@@ -61,9 +64,6 @@ export default function Dashboard() {
     };
   }, [isResizing, actualNavbarWidth, setFolderSidebarWidth]);
 
-  // Calculate the left position based on main Navbar state
-  const actualNavbarWidth = sidebarCollapsed ? 64 : navbarWidth;
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -72,7 +72,7 @@ export default function Dashboard() {
   }, []);
 
   const filteredList = useMemo(() => {
-    return knowledgeList.filter(item => {
+    const filtered = knowledgeList.filter(item => {
       // Folder filter
       if (activeFolderId === 'uncategorized') {
         if (item.folderId) return false;
