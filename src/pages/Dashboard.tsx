@@ -28,6 +28,18 @@ export default function Dashboard() {
     localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showSidebar));
   }, [showSidebar]);
 
+  // Auto-hide sidebar on narrow screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1280) {
+        setShowSidebar(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Calculate the left position based on main Navbar state
   const navbarWidth = sidebarCollapsed ? 64 : 220;
 
@@ -181,15 +193,15 @@ export default function Dashboard() {
         className="transition-all duration-300"
         style={{
           marginLeft: showSidebar ? '280px' : '40px',
-          paddingRight: '32px'
+          paddingRight: '16px'
         }}
       >
-        <div className="px-8 md:px-12 lg:px-16 py-8 min-h-full">
+        <div className="px-4 md:px-8 lg:px-12 py-8 min-h-full">
           {/* Header */}
-          <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end border-b border-border-subtle pb-6 gap-6">
+          <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end border-b border-border-subtle pb-4 md:pb-6 gap-4 md:gap-6">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl md:text-5xl font-serif tracking-tighter">{t('indexTitle')}</h1>
+              <div className="flex items-center gap-2 md:gap-3 mb-2">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif tracking-tighter">{t('indexTitle')}</h1>
                 {activeFolderId !== null && (
                   <span className="text-sm text-text-secondary px-2 py-1 bg-bg-secondary rounded-md">
                     {getCurrentFolderName()}
@@ -210,7 +222,7 @@ export default function Dashboard() {
 
           {isLoading ? (
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16"
+              className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-x-6 md:gap-x-8 gap-y-12 md:gap-y-16"
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
@@ -249,7 +261,7 @@ export default function Dashboard() {
           ) : (
             <motion.div
               ref={containerRef}
-              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16"
+              className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-x-6 md:gap-x-8 gap-y-12 md:gap-y-16"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}

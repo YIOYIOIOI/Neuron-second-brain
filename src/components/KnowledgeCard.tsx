@@ -78,7 +78,7 @@ export function KnowledgeCard({ item }: Props) {
   return (
     <>
       <article
-        className={`note-card group flex flex-col h-full cursor-grab active:cursor-grabbing transition-all duration-300 bg-bg-primary border border-border-subtle rounded-lg p-6 hover:shadow-xl hover:border-text-secondary hover:-translate-y-1 ${
+        className={`note-card group flex flex-col h-full cursor-grab active:cursor-grabbing transition-all duration-300 bg-bg-primary border border-border-subtle rounded-lg p-4 md:p-6 hover:shadow-xl hover:border-text-secondary hover:-translate-y-1 ${
           isDragging ? 'opacity-40 scale-[0.98]' : 'opacity-100'
         }`}
         draggable
@@ -92,8 +92,8 @@ export function KnowledgeCard({ item }: Props) {
           draggable={false}
           onClick={(e) => isDragging && e.preventDefault()}
         >
-          <div className="flex justify-between items-center mb-6 text-xs uppercase tracking-widest font-mono text-text-secondary border-b border-border-subtle pb-4">
-            <div className="flex items-center gap-3">
+          <div className="flex justify-between items-center mb-4 md:mb-6 text-xs uppercase tracking-widest font-mono text-text-secondary border-b border-border-subtle pb-3 md:pb-4">
+            <div className="flex items-center gap-2 md:gap-3">
               {itemType === 'concept' ? (
                 <Lightbulb className="w-3.5 h-3.5 text-accent" />
               ) : itemType === 'canvas' ? (
@@ -103,24 +103,24 @@ export function KnowledgeCard({ item }: Props) {
               )}
               <span>{dateStr}</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <span className="flex items-center gap-1" title={t('importance')}>
                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 {importanceScore}
               </span>
-              <span>{readTime}</span>
+              <span className="hidden sm:inline">{readTime}</span>
             </div>
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-serif leading-tight mb-4 group-hover:text-accent transition-colors duration-300">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-serif leading-tight mb-3 md:mb-4 group-hover:text-accent transition-colors duration-300">
             {item.title}
           </h2>
 
-          <p className="text-text-secondary font-light leading-relaxed mb-8 flex-grow">
+          <p className="text-sm md:text-base text-text-secondary font-light leading-relaxed mb-6 md:mb-8 flex-grow">
             {item.summary}
           </p>
 
-          <div className="flex justify-between items-center mt-auto pt-6 border-t border-transparent group-hover:border-border-subtle transition-colors duration-300">
+          <div className="flex justify-between items-center mt-auto pt-4 md:pt-6 border-t border-transparent group-hover:border-border-subtle transition-colors duration-300">
             <div className="flex gap-2 flex-wrap">
               {item.tags.slice(0, 2).map(tag => (
                 <span

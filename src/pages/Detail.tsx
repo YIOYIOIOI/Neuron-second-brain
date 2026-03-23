@@ -50,6 +50,18 @@ export default function Detail() {
     localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showFolderSidebar));
   }, [showFolderSidebar]);
 
+  // Auto-hide sidebar on narrow screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1280) {
+        setShowFolderSidebar(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const navbarWidth = sidebarCollapsed ? 64 : 220;
 
   useEffect(() => {
@@ -360,14 +372,14 @@ export default function Detail() {
           className="min-h-screen mx-auto transition-all duration-300 max-w-full"
           style={{
             marginLeft: showFolderSidebar ? `${navbarWidth + 280}px` : `${navbarWidth + 40}px`,
-            paddingRight: '32px'
+            paddingRight: '16px'
           }}
         >
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="sticky top-0 bg-bg-secondary/95 backdrop-blur-md z-10 py-4 px-8 md:px-16 lg:px-24 mb-8 flex justify-between items-center border-b border-border-subtle"
+        className="sticky top-0 bg-bg-secondary/95 backdrop-blur-md z-10 py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border-b border-border-subtle"
       >
         <button
           onClick={() => navigate(-1)}
@@ -406,13 +418,13 @@ export default function Detail() {
         </div>
       </motion.div>
 
-      <article className="grid grid-cols-1 lg:grid-cols-12 gap-16 px-8 md:px-16 lg:px-24 py-12">
+      <article className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 px-4 md:px-8 lg:px-16 py-8 md:py-12">
         <div className="lg:col-span-9 transition-all duration-500 ease-out">
           <motion.header
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-16 border-b border-border-subtle pb-12"
+            className="mb-12 md:mb-16 border-b border-border-subtle pb-8 md:pb-12"
           >
             <div className="flex items-center gap-4 text-xs font-mono uppercase tracking-widest text-text-secondary mb-8">
               <span>{dateStr}</span>
@@ -424,7 +436,7 @@ export default function Detail() {
               type="text"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full text-3xl md:text-5xl font-serif leading-[1.1] tracking-tighter mb-6 bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary py-2"
+              className="w-full text-2xl md:text-3xl lg:text-5xl font-serif leading-[1.1] tracking-tighter mb-6 bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary py-2"
               placeholder={t('title')}
             />
             <textarea
@@ -455,8 +467,8 @@ export default function Detail() {
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="lg:sticky lg:top-32 h-fit lg:col-span-3 transition-all duration-500 ease-out"
         >
-          <div className="bg-bg-secondary/50 p-8 rounded-2xl border border-border-subtle mb-8">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-medium text-text-secondary mb-6">
+          <div className="bg-bg-secondary/50 p-4 md:p-6 lg:p-8 rounded-2xl border border-border-subtle mb-6 md:mb-8">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-medium text-text-secondary mb-4 md:mb-6">
               <Sparkles className="w-4 h-4" /> {t('aiSummary')}
             </div>
             <p className="text-sm leading-relaxed font-light italic text-text-secondary">
@@ -464,8 +476,8 @@ export default function Detail() {
             </p>
           </div>
 
-          <div className="mb-8">
-            <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-6 border-b border-border-subtle pb-4">{t('tags')}</h3>
+          <div className="mb-6 md:mb-8">
+            <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-4 md:mb-6 border-b border-border-subtle pb-4">{t('tags')}</h3>
             <div className="flex flex-wrap gap-2">
               {editTags.map(tag => (
                 <span key={tag} className="flex items-center gap-1 text-xs uppercase tracking-wider font-medium text-text-secondary bg-bg-secondary px-3 py-1.5 rounded-sm">
@@ -485,8 +497,8 @@ export default function Detail() {
           </div>
 
           {/* References Section */}
-          <div className="mb-8">
-            <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-6 border-b border-border-subtle pb-4">{t('references')}</h3>
+          <div className="mb-6 md:mb-8">
+            <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-4 md:mb-6 border-b border-border-subtle pb-4">{t('references')}</h3>
             <div className="space-y-3">
                 {editReferenceItems.map(ref => (
                   <div key={ref.id} className="flex items-center justify-between gap-2 p-2 bg-bg-secondary/50 rounded-md group">
@@ -555,8 +567,8 @@ export default function Detail() {
           </div>
 
           {backlinks.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-6 border-b border-border-subtle pb-4">{t('backlinks')}</h3>
+            <div className="mb-6 md:mb-8">
+              <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-4 md:mb-6 border-b border-border-subtle pb-4">{t('backlinks')}</h3>
               <ul className="flex flex-col gap-3">
                 {backlinks.map(bl => (
                   <li key={bl.id}>
@@ -571,7 +583,7 @@ export default function Detail() {
 
           {item.versions && item.versions.length > 0 && (
             <div>
-              <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-6 border-b border-border-subtle pb-4">{t('versionHistory')}</h3>
+              <h3 className="text-xs uppercase tracking-widest font-medium text-text-secondary mb-4 md:mb-6 border-b border-border-subtle pb-4">{t('versionHistory')}</h3>
               <ul className="flex flex-col gap-3">
                 {item.versions.map((version, idx) => (
                   <li key={idx} className="flex flex-col gap-1">
