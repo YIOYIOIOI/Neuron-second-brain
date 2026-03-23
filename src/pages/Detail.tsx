@@ -3,7 +3,7 @@ import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { ArrowLeft, Sparkles, Download, BookOpen, Pin, PinOff, X, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Sparkles, Download, BookOpen, Pin, PinOff, X, Plus, Search, MoreVertical } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { AdvancedBlockEditor } from '../components/editor/AdvancedBlockEditor';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
@@ -48,6 +48,7 @@ export default function Detail() {
   });
   const [isResizing, setIsResizing] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showFolderSidebar));
@@ -426,54 +427,106 @@ export default function Detail() {
         animate={{
           opacity: 1,
           x: 0,
-          width: scrollY > 50 ? '400px' : '100%',
           borderRadius: scrollY > 50 ? '24px' : '0px',
-          marginLeft: scrollY > 50 ? '50%' : '0',
-          translateX: scrollY > 50 ? '-50%' : '0'
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="sticky bg-bg-secondary/95 backdrop-blur-md z-[100] py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border border-border-subtle shadow-lg"
         style={{
           top: scrollY > 50 ? '72px' : '0',
           marginTop: scrollY > 50 ? '8px' : '0',
-          marginBottom: scrollY > 50 ? '16px' : '0'
+          marginBottom: scrollY > 50 ? '16px' : '0',
+          marginLeft: scrollY > 50 ? 'auto' : '0',
+          marginRight: scrollY > 50 ? '0' : '0',
+          width: scrollY > 50 ? 'fit-content' : '100%',
         }}
       >
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> {t('back')}
+          <ArrowLeft className="w-4 h-4" /> {scrollY > 50 ? '' : t('back')}
         </button>
 
-        <div className="flex gap-4">
-          <button
-            onClick={() => setShowExportModal(true)}
-            className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <Download className="w-4 h-4" /> {t('export')}
-          </button>
-          <button
-            onClick={() => {
-              const isPinned = pinnedCards.some(c => c.id === item.id);
-              if (isPinned) {
-                unpinCard(item.id);
-              } else {
-                pinCard({ id: item.id, title: item.title, summary: item.summary });
-              }
-            }}
-            className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-          >
-            {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
-            {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
-          </button>
-          <button
-            onClick={() => setShowReviewCardModal(true)}
-            className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
-          </button>
-        </div>
+        {scrollY > 50 ? (
+          <div className="relative">
+            <button
+              onClick={() => setShowActionsMenu(!showActionsMenu)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+            <AnimatePresence>
+              {showActionsMenu && (
+                <>
+                  <div className="fixed inset-0 z-[90]" onClick={() => setShowActionsMenu(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute right-0 top-full mt-2 bg-bg-primary border border-border-subtle rounded-lg shadow-xl py-1 min-w-[160px] z-[100]"
+                  >
+                    <button
+                      onClick={() => { setShowExportModal(true); setShowActionsMenu(false); }}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" /> {t('export')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const isPinned = pinnedCards.some(c => c.id === item.id);
+                        if (isPinned) {
+                          unpinCard(item.id);
+                        } else {
+                          pinCard({ id: item.id, title: item.title, summary: item.summary });
+                        }
+                        setShowActionsMenu(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
+                    >
+                      {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+                      {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
+                    </button>
+                    <button
+                      onClick={() => { setShowReviewCardModal(true); setShowActionsMenu(false); }}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
+                    >
+                      <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="flex gap-4">
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <Download className="w-4 h-4" /> {t('export')}
+            </button>
+            <button
+              onClick={() => {
+                const isPinned = pinnedCards.some(c => c.id === item.id);
+                if (isPinned) {
+                  unpinCard(item.id);
+                } else {
+                  pinCard({ id: item.id, title: item.title, summary: item.summary });
+                }
+              }}
+              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              {pinnedCards.some(c => c.id === item.id) ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+              {pinnedCards.some(c => c.id === item.id) ? t('unpin') : t('pin')}
+            </button>
+            <button
+              onClick={() => setShowReviewCardModal(true)}
+              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-medium text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <BookOpen className="w-4 h-4" /> {t('addToReviewDeck')}
+            </button>
+          </div>
+        )}
       </motion.div>
 
       <article className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 px-4 md:px-8 lg:px-16 py-8 md:py-12">
