@@ -16,21 +16,42 @@ interface DetailProps {
 }
 
 export default function Detail({ knowledgeId }: DetailProps = {}) {
-  const { id: urlId } = useParams();
+  const { id: urlId } = knowledgeId ? { id: undefined } : useParams();
   const id = knowledgeId || urlId;
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed, navbarWidth, folderSidebarWidth, setFolderSidebarWidth, splitViewKnowledgeId, setSplitViewKnowledgeId, setSplitViewOpen } = useStore();
-  const { t, language } = useTranslation();
+  const navigate = knowledgeId ? (() => {}) as any : useNavigate();
+  const store = useStore();
+  const { knowledgeList, updateKnowledge, incrementAccessCount, reviewDecks, addReviewCard, pinnedCards, pinCard, unpinCard, sidebarCollapsed, navbarWidth, folderSidebarWidth, setFolderSidebarWidth, splitViewKnowledgeId, setSplitViewKnowledgeId, setSplitViewOpen } = knowledgeId
+    ? {
+        knowledgeList: store.knowledgeList,
+        updateKnowledge: store.updateKnowledge,
+        incrementAccessCount: store.incrementAccessCount,
+        reviewDecks: store.reviewDecks,
+        addReviewCard: store.addReviewCard,
+        pinnedCards: store.pinnedCards,
+        pinCard: store.pinCard,
+        unpinCard: store.unpinCard,
+        sidebarCollapsed: false,
+        navbarWidth: 0,
+        folderSidebarWidth: 0,
+        setFolderSidebarWidth: () => {},
+        splitViewKnowledgeId: null,
+        setSplitViewKnowledgeId: () => {},
+        setSplitViewOpen: () => {}
+      }
+    : store;
+  const translation = useTranslation();
+  const { t, language } = knowledgeId
+    ? { t: translation.t, language: translation.language }
+    : translation;
 
   const item = knowledgeList.find((n) => n.id === id);
 
   // Redirect to canvas if type is canvas
   useEffect(() => {
-    if (item?.type === 'canvas') {
+    if (item?.type === 'canvas' && !knowledgeId) {
       navigate(`/note/canvas/${id}`, { replace: true });
     }
-  }, [item, id, navigate]);
+  }, [item, id, navigate, knowledgeId]);
 
   const [isEditing, setIsEditing] = useState(true);
   const [editTitle, setEditTitle] = useState('');
@@ -119,9 +140,10 @@ export default function Detail({ knowledgeId }: DetailProps = {}) {
   }, []);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    setIsEditing(true);
-  }, [location.search]);
+    if (!knowledgeId) {
+      setIsEditing(true);
+    }
+  }, [knowledgeId]);
 
   useEffect(() => {
     if (item) {
