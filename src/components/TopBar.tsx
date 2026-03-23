@@ -8,7 +8,7 @@ import { cn } from './Navbar';
 import { ImportModal } from './ImportModal';
 
 export function TopBar() {
-  const { user, logout, sidebarCollapsed, addKnowledge } = useStore();
+  const { user, logout, sidebarCollapsed, addKnowledge, navbarWidth } = useStore();
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const location = useLocation();
@@ -96,8 +96,8 @@ export function TopBar() {
       <header
         className="fixed top-0 h-14 z-30 bg-bg-primary/70 backdrop-blur-md border-b border-border-subtle/50 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
-          left: sidebarCollapsed ? '64px' : '220px',
-          width: sidebarCollapsed ? 'calc(100% - 64px)' : 'calc(100% - 220px)'
+          left: sidebarCollapsed ? '64px' : `${navbarWidth}px`,
+          width: sidebarCollapsed ? 'calc(100% - 64px)' : `calc(100% - ${navbarWidth}px)`
         }}
       >
       <div className="h-full flex items-center justify-between px-6">

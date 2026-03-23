@@ -169,6 +169,11 @@ export function Navbar() {
     const handleMouseMove = (e: MouseEvent) => {
       const newWidth = Math.max(64, Math.min(280, e.clientX));
       setNavbarWidth(newWidth);
+
+      // Auto collapse when dragged to minimum
+      if (newWidth <= 80 && !sidebarCollapsed) {
+        toggleSidebar();
+      }
     };
 
     const handleMouseUp = () => setIsResizing(false);
@@ -181,7 +186,7 @@ export function Navbar() {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing, setNavbarWidth]);
+  }, [isResizing, setNavbarWidth, sidebarCollapsed, toggleSidebar]);
 
   const navItems = [
     { path: '/dashboard', label: t('dashboard'), icon: Grid },
