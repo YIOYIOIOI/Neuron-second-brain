@@ -91,6 +91,7 @@ export function PinnedCardsSidebar() {
               exit={{ opacity: 0, x: 20 }}
               draggable
               onDragStart={(e) => {
+                e.dataTransfer.setData('application/reactflow', JSON.stringify(node));
                 e.dataTransfer.setData('text/plain', `**${node.title}**: ${node.summary}`);
                 e.dataTransfer.effectAllowed = 'copy';
               }}

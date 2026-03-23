@@ -28,6 +28,13 @@ interface StoreState {
   activeReviewDeckId: string | null;
   reviewCompletionState: Record<string, { completed: boolean; date: string }>;
 
+  splitViewOpen: boolean;
+  splitViewWidth: number;
+  splitViewKnowledgeId: string | null;
+  setSplitViewOpen: (open: boolean) => void;
+  setSplitViewWidth: (width: number) => void;
+  setSplitViewKnowledgeId: (id: string | null) => void;
+
   isAgentOpen: boolean;
   isAgentSidebar: boolean;
   isAgentSidebarCollapsed: boolean;
@@ -102,6 +109,16 @@ export const useStore = create<StoreState>((set) => ({
   reviewCards: JSON.parse(localStorage.getItem('reviewCards') || '[]'),
   activeReviewDeckId: null,
   reviewCompletionState: JSON.parse(localStorage.getItem('reviewCompletionState') || '{}'),
+
+  splitViewOpen: false,
+  splitViewWidth: Number(localStorage.getItem('splitViewWidth')) || 600,
+  splitViewKnowledgeId: null,
+  setSplitViewOpen: (open) => set({ splitViewOpen: open }),
+  setSplitViewWidth: (width) => {
+    localStorage.setItem('splitViewWidth', String(width));
+    set({ splitViewWidth: width });
+  },
+  setSplitViewKnowledgeId: (id) => set({ splitViewKnowledgeId: id }),
 
   isAgentOpen: false,
   isAgentSidebar: false,

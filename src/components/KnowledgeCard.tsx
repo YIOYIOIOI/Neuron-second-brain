@@ -12,7 +12,7 @@ interface Props {
 
 export function KnowledgeCard({ item }: Props) {
   const { t, language } = useTranslation();
-  const { pinnedCards, pinCard, unpinCard, deleteKnowledge } = useStore();
+  const { pinnedCards, pinCard, unpinCard, deleteKnowledge, setSplitViewOpen, setSplitViewKnowledgeId } = useStore();
   const navigate = useNavigate();
   const [isDragging, setIsDragging] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -72,6 +72,12 @@ export function KnowledgeCard({ item }: Props) {
     } else {
       pinCard({ id: item.id, title: item.title, summary: item.summary });
     }
+    setShowContextMenu(false);
+  };
+
+  const handleOpenInSplit = () => {
+    setSplitViewKnowledgeId(item.id);
+    setSplitViewOpen(true);
     setShowContextMenu(false);
   };
 
@@ -164,6 +170,13 @@ export function KnowledgeCard({ item }: Props) {
             >
               <ArrowUpRight className="w-4 h-4" />
               {language === 'zh' ? '打开' : 'Open'}
+            </button>
+            <button
+              onClick={handleOpenInSplit}
+              className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              {language === 'zh' ? '在侧页打开' : 'Open in Split'}
             </button>
             <button
               onClick={handleTogglePin}

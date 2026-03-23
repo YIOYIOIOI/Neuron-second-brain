@@ -49,10 +49,14 @@ function TextNode({ data, selected }: any) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
-      <Handle type="target" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
-      <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="top-target" type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="top-source" type="source" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="bottom-target" type="target" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="bottom-source" type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="left-target" type="target" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="left-source" type="source" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="right-target" type="target" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="right-source" type="source" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
       {isEditing ? (
         <textarea
           autoFocus
@@ -98,10 +102,14 @@ function KnowledgeNode({ data, selected }: any) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
-      <Handle type="target" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
-      <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="top-target" type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="top-source" type="source" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="bottom-target" type="target" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="bottom-source" type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="left-target" type="target" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="left-source" type="source" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="right-target" type="target" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle id="right-source" type="source" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
 
       <div className="p-5 pb-3" onDoubleClick={() => setIsEditingTitle(true)}>
         {isEditingTitle ? (
@@ -165,6 +173,61 @@ export default function Canvas() {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [panOnDrag, setPanOnDrag] = useState(true);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId?: string } | null>(null);
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const data = event.dataTransfer.getData('application/reactflow');
+      if (!data || !reactFlowInstance) return;
+
+      const item = JSON.parse(data);
+      const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+      if (!bounds) return;
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+
+      const newNode: Node = {
+        id: `knowledge-${item.id}-${Date.now()}`,
+        type: 'knowledgeNode',
+        position,
+        data: {
+          title: item.title,
+          summary: item.summary,
+          knowledgeId: item.id,
+          onTitleChange: (newTitle: string) => {
+            setNodes((nds) =>
+              nds.map((node) =>
+                node.id === newNode.id
+                  ? { ...node, data: { ...node.data, title: newTitle } }
+                  : node
+              )
+            );
+          },
+          onSummaryChange: (newSummary: string) => {
+            setNodes((nds) =>
+              nds.map((node) =>
+                node.id === newNode.id
+                  ? { ...node, data: { ...node.data, summary: newSummary } }
+                  : node
+              )
+            );
+          },
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [reactFlowInstance, setNodes]
+  );
 
   // Load existing canvas data
   useEffect(() => {
@@ -349,10 +412,11 @@ export default function Canvas() {
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
         onPaneContextMenu={onPaneContextMenu}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         nodeTypes={nodeTypes}
         minZoom={0.5}
         maxZoom={2}
-        fitView
         panOnDrag={panOnDrag}
         selectionOnDrag
         panOnScroll={false}

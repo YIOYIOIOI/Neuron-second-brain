@@ -46,6 +46,7 @@ export default function Detail() {
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [isResizing, setIsResizing] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showFolderSidebar));
@@ -98,6 +99,14 @@ export default function Detail() {
       incrementAccessCount(id);
     }
   }, [id, incrementAccessCount]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -410,9 +419,20 @@ export default function Detail() {
         >
       <motion.div
         initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
+        animate={{
+          opacity: 1,
+          x: 0,
+          width: scrollY > 50 ? '400px' : '100%',
+          borderRadius: scrollY > 50 ? '24px' : '0px',
+          marginLeft: scrollY > 50 ? '50%' : '0',
+          translateX: scrollY > 50 ? '-50%' : '0'
+        }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="sticky top-0 bg-bg-secondary/95 backdrop-blur-md z-10 py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border-b border-border-subtle"
+        className="sticky top-4 bg-bg-secondary/95 backdrop-blur-md z-20 py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border border-border-subtle shadow-lg"
+        style={{
+          marginTop: scrollY > 50 ? '8px' : '0',
+          marginBottom: scrollY > 50 ? '16px' : '0'
+        }}
       >
         <button
           onClick={() => navigate(-1)}
