@@ -185,9 +185,11 @@ export default function Graph() {
 
     const simulation = d3.forceSimulation<GraphNode>(nodes)
       .force('link', d3.forceLink<GraphNode, GraphLink>(links).id(d => d.id).distance(80))
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(50));
+      .force('collision', d3.forceCollide().radius(50))
+      .alphaDecay(0.1)
+      .velocityDecay(0.6);
 
     const link = container.append('g')
       .selectAll('line')
@@ -226,12 +228,18 @@ export default function Graph() {
 
     const drag = d3.drag<SVGGElement, GraphNode>()
       .on('start', (event, d) => {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x; d.fy = d.y;
+        if (!event.active) simulation.alphaTarget(0.05).restart();
+        d.fx = d.x;
+        d.fy = d.y;
       })
-      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('drag', (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
       .on('end', (event, d) => {
         if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
       });
 
     node.call(drag);

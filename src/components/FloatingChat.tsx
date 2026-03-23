@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bot, X, Send, Loader2, Minimize2, Maximize2 } from 'lucide-react';
+import { X, Send, Loader2, Minimize2, Maximize2, Smile } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { cn } from './Navbar';
 
@@ -127,7 +127,7 @@ export function FloatingChat({ contextKnowledge }: FloatingChatProps) {
             onClick={() => setIsOpen(true)}
             className="fixed bottom-6 right-6 w-14 h-14 bg-accent text-white rounded-full shadow-lg flex items-center justify-center z-50 hover:bg-accent/90 transition-colors"
           >
-            <Bot className="w-6 h-6" />
+            <Smile className="w-6 h-6" />
           </motion.button>
         )}
       </AnimatePresence>

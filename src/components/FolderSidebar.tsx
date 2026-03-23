@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, DragEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { createPortal } from 'react-dom';
 import {
   Folder, FolderOpen, File, ChevronRight, ChevronDown,
   MoreHorizontal, Trash2, Edit2, FolderPlus
@@ -34,13 +35,25 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+      if (contextMenu && contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
         setContextMenu(null);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    function handleContextMenu(e: MouseEvent) {
+      if (contextMenu && contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null);
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, [contextMenu]);
 
   useEffect(() => {
     if (renamingId && renameInputRef.current) {
@@ -216,7 +229,9 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            setContextMenu({ id: folder.id, x: e.clientX, y: e.clientY });
+            e.stopPropagation();
+            const newMenu = { id: folder.id, x: e.clientX, y: e.clientY };
+            setContextMenu(newMenu);
           }}
         >
           <button
@@ -252,11 +267,11 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <span className="flex-1 truncate text-xs">{folder.name}</span>
+            <span className="flex-1 truncate text-sm font-serif">{folder.name}</span>
           )}
 
           {itemCount > 0 && !isRenaming && (
-            <span className="text-[10px] text-text-secondary opacity-60">{itemCount}</span>
+            <span className="text-xs text-text-secondary opacity-60 font-serif">{itemCount}</span>
           )}
 
           <button
@@ -282,6 +297,7 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
                 if (e.key === 'Enter') handleCreateFolder(folder.id);
                 if (e.key === 'Escape') setShowNewFolder(null);
               }}
+              onBlur={() => handleCreateFolder(folder.id)}
               placeholder={language === 'zh' ? '文件夹名称' : 'Folder name'}
               className="flex-1 px-2 py-1 text-xs bg-bg-secondary border border-border-subtle rounded focus:outline-none focus:border-accent"
               autoFocus
@@ -308,7 +324,7 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
                   onClick={() => window.location.href = `/note/${item.id}`}
                 >
                   <File className="w-4 h-4 text-text-secondary shrink-0" />
-                  <span className="flex-1 truncate text-xs">{item.title}</span>
+                  <span className="flex-1 truncate text-sm font-serif">{item.title}</span>
                 </div>
               ))}
             </motion.div>
@@ -325,7 +341,7 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="p-3 border-b border-border-subtle/50 flex items-center justify-between shrink-0">
-        <span className="text-xs font-medium text-text-secondary uppercase tracking-wider">
+        <span className="text-xs font-medium text-text-secondary uppercase tracking-wider font-serif">
           {language === 'zh' ? '文件管理' : 'Files'}
         </span>
         <button
@@ -354,8 +370,8 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
           )}
         >
           <File className="w-4 h-4" />
-          <span className="text-xs">{language === 'zh' ? '全部文件' : 'All Files'}</span>
-          <span className="text-[10px] text-text-secondary ml-auto opacity-60">{knowledgeList.length}</span>
+          <span className="text-sm font-serif">{language === 'zh' ? '全部文件' : 'All Files'}</span>
+          <span className="text-xs text-text-secondary ml-auto opacity-60 font-serif">{knowledgeList.length}</span>
         </button>
 
         {/* New root folder input */}
@@ -370,6 +386,7 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
                 if (e.key === 'Enter') handleCreateFolder(null);
                 if (e.key === 'Escape') setShowNewFolder(null);
               }}
+              onBlur={() => handleCreateFolder(null)}
               placeholder={language === 'zh' ? '文件夹名称' : 'Folder name'}
               className="flex-1 px-2 py-1 text-xs bg-bg-secondary border border-border-subtle rounded focus:outline-none focus:border-accent"
               autoFocus
@@ -391,31 +408,27 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
             )}
           >
             <File className="w-4 h-4 opacity-50" />
-            <span className="text-xs text-text-secondary">{language === 'zh' ? '未分类' : 'Uncategorized'}</span>
-            <span className="text-[10px] text-text-secondary ml-auto opacity-60">{uncategorizedCount}</span>
+            <span className="text-sm text-text-secondary font-serif">{language === 'zh' ? '未分类' : 'Uncategorized'}</span>
+            <span className="text-xs text-text-secondary ml-auto opacity-60 font-serif">{uncategorizedCount}</span>
           </button>
         )}
       </div>
 
-      {/* Context Menu */}
-      <AnimatePresence>
-        {contextMenu && (
-          <motion.div
-            ref={contextMenuRef}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed bg-bg-primary border border-border-subtle rounded-lg shadow-xl py-1 z-[100] min-w-[160px]"
-            style={{ left: contextMenu.x, top: contextMenu.y }}
-          >
-            <button
+      {/* Context Menu - using Portal to render outside */}
+      {contextMenu && createPortal(
+        <div
+          ref={contextMenuRef}
+          className="fixed bg-bg-primary border border-border-subtle rounded-lg shadow-xl py-1 z-[9999] min-w-[160px]"
+          style={{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }}
+        >
+          <button
               onClick={() => {
                 setShowNewFolder(contextMenu.id);
                 setNewFolderName('');
                 setExpandedFolders(prev => new Set([...prev, contextMenu.id]));
                 setContextMenu(null);
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors font-serif"
             >
               <FolderPlus className="w-4 h-4" />
               {language === 'zh' ? '新建子文件夹' : 'New Subfolder'}
@@ -429,7 +442,7 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
                 }
                 setContextMenu(null);
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors font-serif"
             >
               <Edit2 className="w-4 h-4" />
               {language === 'zh' ? '重命名' : 'Rename'}
@@ -437,14 +450,14 @@ export function FolderSidebar({ onSelectFolder, activeFolderId }: FolderSidebarP
             <div className="my-1 border-t border-border-subtle" />
             <button
               onClick={() => handleDeleteFolder(contextMenu.id)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors font-serif"
             >
               <Trash2 className="w-4 h-4" />
               {language === 'zh' ? '删除' : 'Delete'}
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

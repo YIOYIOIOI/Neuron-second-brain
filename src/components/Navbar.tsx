@@ -4,7 +4,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import {
   Grid, Clock, Network, PenTool, BookOpen, Globe,
-  ChevronsLeft, ChevronsRight, Bot, Sun, Moon, Monitor
+  ChevronsLeft, ChevronsRight, Sun, Moon, Monitor, Smile
 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { useStore } from '../store/useStore';
@@ -45,7 +45,7 @@ function NavItem({
         "overflow-hidden transition-all duration-300 ease-out",
         collapsed ? "w-0 opacity-0" : "w-28 opacity-100 ml-3"
       )}>
-        <span className="text-xs whitespace-nowrap block">{label}</span>
+        <span className="text-xs whitespace-nowrap block font-serif">{label}</span>
       </div>
       {isActive && (
         <motion.div
@@ -88,7 +88,7 @@ function ActionButton({
         "overflow-hidden transition-all duration-300 ease-out",
         collapsed ? "w-0 opacity-0" : "w-28 opacity-100 ml-3"
       )}>
-        <span className="text-xs whitespace-nowrap block">{label}</span>
+        <span className="text-xs whitespace-nowrap block font-serif">{label}</span>
       </div>
     </button>
   );
@@ -217,7 +217,7 @@ export function Navbar() {
         {/* AI Agent Entry */}
         <NavItem
           to="/agent"
-          icon={Bot}
+          icon={Smile}
           label={language === 'zh' ? 'AI 助手' : 'AI Agent'}
           isActive={location.pathname === '/agent'}
           collapsed={sidebarCollapsed}

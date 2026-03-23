@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, X, Send, Loader2, Minimize2, Maximize2, Sidebar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Smile, X, Send, Loader2, Minimize2, Maximize2, Sidebar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { cn } from './Navbar';
 
@@ -134,7 +134,7 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
             className="fixed bottom-6 right-6 w-12 h-12 bg-bg-primary/80 backdrop-blur-md border border-border-subtle text-accent rounded-full shadow-lg flex items-center justify-center z-50 hover:bg-bg-secondary transition-colors cursor-move"
             style={{ touchAction: 'none' }}
           >
-            <Sparkles className="w-5 h-5" />
+            <Smile className="w-5 h-5" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -185,7 +185,7 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-accent" />
+                  <Smile className="w-4 h-4 text-accent" />
                 </div>
                 <div className="text-sm font-medium">{language === 'zh' ? 'AI 助手' : 'AI Assistant'}</div>
               </div>
@@ -217,7 +217,7 @@ export function AgentChat({ autoOpen = false }: AgentChatProps = {}) {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center text-text-secondary">
-                      <Sparkles className="w-10 h-10 mb-3 text-accent/50" />
+                      <Smile className="w-10 h-10 mb-3 text-accent/50" />
                       <p className="text-sm">{language === 'zh' ? '向AI助手提问' : 'Ask AI Assistant'}</p>
                     </div>
                   ) : (

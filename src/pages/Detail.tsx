@@ -5,7 +5,7 @@ import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
 import { ArrowLeft, Sparkles, Edit2, Save, X, Plus, Search, Download, BookOpen, Pin, PinOff } from 'lucide-react';
 import { KnowledgeCard } from '../components/KnowledgeCard';
-import { BlockEditor } from '../components/BlockEditor';
+import { AdvancedBlockEditor } from '../components/editor/AdvancedBlockEditor';
 import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 import { ReviewCard } from '../types';
 import toast from 'react-hot-toast';
@@ -383,10 +383,10 @@ export default function Detail() {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             {isEditing ? (
-              <BlockEditor
-                initialContent={editContent}
-                onChange={(blocks) => setEditContent(blocks.map(b => b.content).join('\n'))}
-                placeholder={t('content')}
+              <AdvancedBlockEditor
+                content={editContent}
+                onChange={setEditContent}
+                placeholder={t('content') || 'Type / for commands, @ to mention'}
               />
             ) : (
               <div className="prose prose-lg md:prose-xl prose-stone max-w-none font-sans font-light leading-loose text-text-primary">

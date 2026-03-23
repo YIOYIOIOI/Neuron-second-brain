@@ -7,7 +7,7 @@ import { RichEditor } from '../components/RichEditor';
 import toast from 'react-hot-toast';
 
 export default function Writing() {
-  const { knowledgeList, editorState, setEditorState, addKnowledge, setAgentOpen, setAgentSidebar } = useStore();
+  const { knowledgeList, editorState, setEditorState, addKnowledge, setAgentOpen, setAgentSidebar, language } = useStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
@@ -143,7 +143,7 @@ export default function Writing() {
               className="w-full text-3xl md:text-4xl font-serif tracking-tighter bg-transparent focus:outline-none border-b border-border-subtle pb-4 mb-6 placeholder:text-text-secondary/30"
             />
           </div>
-          {/* Rich Editor */}
+          {/* Advanced Block Editor */}
           <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-8 custom-scrollbar">
             <RichEditor
               content={editorState}

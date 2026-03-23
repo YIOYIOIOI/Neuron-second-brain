@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
 import {
-  Send, Bot, Sparkles, Search, BookOpen, PenTool,
+  Send, Bot, Smile, Search, BookOpen, PenTool,
   Brain, Network, Loader2, Plus, MessageSquare
 } from 'lucide-react';
 import { cn } from '../components/Navbar';
@@ -165,7 +165,7 @@ export default function Agent() {
         <div className="p-4 flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
             <h1 className="font-medium text-sm text-text-secondary flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-accent" />
+              <Smile className="w-4 h-4 text-accent" />
               Neuron Agent
             </h1>
           </div>
@@ -198,7 +198,7 @@ export default function Agent() {
                 >
                   {message.role === 'agent' && (
                     <div className="w-8 h-8 rounded-full border border-border-subtle flex items-center justify-center shrink-0 mt-1 bg-bg-primary">
-                      <Sparkles className="w-4 h-4 text-accent" />
+                      <Smile className="w-4 h-4 text-accent" />
                     </div>
                   )}
                   <div className={cn(
@@ -241,7 +241,7 @@ export default function Agent() {
                 className="flex gap-4 w-full"
               >
                 <div className="w-8 h-8 rounded-full border border-border-subtle flex items-center justify-center shrink-0 mt-1 bg-bg-primary">
-                  <Sparkles className="w-4 h-4 text-accent" />
+                  <Smile className="w-4 h-4 text-accent" />
                 </div>
                 <div className="py-1">
                   <div className="flex items-center gap-2 h-8">
@@ -265,7 +265,7 @@ export default function Agent() {
             {messages.length === 0 && (
               <motion.div layout className="flex flex-col items-center mb-8">
                 <div className="w-16 h-16 rounded-full border border-border-subtle flex items-center justify-center mb-6 shadow-sm">
-                  <Sparkles className="w-8 h-8 text-accent" />
+                  <Smile className="w-8 h-8 text-accent" />
                 </div>
                 <h2 className="text-2xl font-serif text-center">
                   {language === 'zh' ? '今天需要什么帮助？' : 'How can I help you today?'}

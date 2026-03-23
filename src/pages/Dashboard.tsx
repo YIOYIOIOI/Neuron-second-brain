@@ -19,7 +19,14 @@ export default function Dashboard() {
   const { t, language } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(() => {
+    const saved = localStorage.getItem('dashboardSidebarVisible');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dashboardSidebarVisible', JSON.stringify(showSidebar));
+  }, [showSidebar]);
 
   // Calculate the left position based on main Navbar state
   const navbarWidth = sidebarCollapsed ? 64 : 220;
