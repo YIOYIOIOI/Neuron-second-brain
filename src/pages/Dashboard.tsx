@@ -45,19 +45,21 @@ export default function Dashboard() {
     if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const newWidth = Math.max(180, Math.min(400, e.clientX - navbarWidth));
+      const newWidth = Math.max(180, Math.min(400, e.clientX - actualNavbarWidth));
       setFolderSidebarWidth(newWidth);
     };
 
     const handleMouseUp = () => setIsResizing(false);
 
+    document.body.style.userSelect = 'none';
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     return () => {
+      document.body.style.userSelect = '';
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing, navbarWidth, setFolderSidebarWidth]);
+  }, [isResizing, actualNavbarWidth, setFolderSidebarWidth]);
 
   // Calculate the left position based on main Navbar state
   const actualNavbarWidth = sidebarCollapsed ? 64 : navbarWidth;
