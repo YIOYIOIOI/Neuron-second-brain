@@ -182,6 +182,10 @@ export function Navbar() {
       if (newWidth <= 80 && !sidebarCollapsed) {
         toggleSidebar();
       }
+      // Auto expand when dragged from collapsed state
+      if (newWidth > 80 && sidebarCollapsed) {
+        toggleSidebar();
+      }
     };
 
     const handleMouseUp = () => setIsResizing(false);
