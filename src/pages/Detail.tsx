@@ -19,6 +19,13 @@ export default function Detail() {
 
   const item = knowledgeList.find((n) => n.id === id);
 
+  // Redirect to canvas if type is canvas
+  useEffect(() => {
+    if (item?.type === 'canvas') {
+      navigate(`/note/canvas/${id}`, { replace: true });
+    }
+  }, [item, id, navigate]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editSummary, setEditSummary] = useState('');
@@ -63,6 +70,22 @@ export default function Detail() {
       setEditReferences(item.references || []);
     }
   }, [item]);
+
+  // Auto-save
+  useEffect(() => {
+    if (!isEditing || !id) return;
+    const timer = setTimeout(() => {
+      updateKnowledge(id, {
+        title: editTitle,
+        summary: editSummary,
+        content: editContent,
+        tags: editTags,
+        references: editReferences,
+        updatedAt: new Date().toISOString(),
+      });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [editTitle, editSummary, editContent, editTags, editReferences, isEditing, id, updateKnowledge]);
 
   // Filter knowledge for reference search
   const filteredKnowledgeForRef = useMemo(() => {
@@ -264,13 +287,13 @@ export default function Detail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className={`px-8 md:px-16 lg:px-24 py-12 min-h-screen mx-auto transition-all duration-500 ease-out ${isEditing ? 'max-w-full' : 'max-w-7xl'}`}
+      className={`min-h-screen mx-auto transition-all duration-500 ease-out ${isEditing ? 'max-w-full' : 'max-w-7xl'}`}
     >
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="mb-16 flex justify-between items-center"
+        className="sticky top-0 bg-bg-secondary/95 backdrop-blur-md z-10 py-4 px-8 md:px-16 lg:px-24 mb-8 flex justify-between items-center border-b border-border-subtle"
       >
         <button
           onClick={() => navigate(-1)}
@@ -334,7 +357,7 @@ export default function Detail() {
         </div>
       </motion.div>
 
-      <article className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <article className="grid grid-cols-1 lg:grid-cols-12 gap-16 px-8 md:px-16 lg:px-24 py-12">
         <div className={`transition-all duration-500 ease-out ${isEditing ? 'lg:col-span-9' : 'lg:col-span-8'}`}>
           <motion.header
             initial={{ opacity: 0, y: 20 }}

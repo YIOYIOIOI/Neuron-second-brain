@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import {
-  Grid, Clock, Network, PenTool, BookOpen, Globe,
+  Grid, Clock, Network, PenTool, BookOpen, Globe, FileText,
   ChevronsLeft, ChevronsRight, Sun, Moon, Monitor, Smile
 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
@@ -161,9 +161,9 @@ export function Navbar() {
 
   const navItems = [
     { path: '/dashboard', label: t('dashboard'), icon: Grid },
+    { path: '/note', label: language === 'zh' ? '笔记' : 'Notes', icon: FileText },
     { path: '/timeline', label: t('timeline'), icon: Clock },
     { path: '/graph', label: t('graph'), icon: Network },
-    { path: '/writing', label: t('writing'), icon: PenTool },
     { path: '/review', label: t('review'), icon: BookOpen },
   ];
 

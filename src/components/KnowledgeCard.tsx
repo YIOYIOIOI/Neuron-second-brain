@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, Pin, PinOff, FileText, Lightbulb } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowUpRight, Pin, PinOff, FileText, Lightbulb, Trash2, Palette } from 'lucide-react';
 import { KnowledgeItem } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 import { useStore } from '../store/useStore';
@@ -11,9 +11,12 @@ interface Props {
 }
 
 export function KnowledgeCard({ item }: Props) {
-  const { t } = useTranslation();
-  const { language, pinnedCards, pinCard, unpinCard } = useStore();
+  const { t, language } = useTranslation();
+  const { pinnedCards, pinCard, unpinCard, deleteKnowledge } = useStore();
+  const navigate = useNavigate();
   const [isDragging, setIsDragging] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 
   const isPinned = pinnedCards.some(c => c.id === item.id);
 
@@ -47,6 +50,31 @@ export function KnowledgeCard({ item }: Props) {
     setIsDragging(false);
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenuPos({ x: e.clientX, y: e.clientY });
+    setShowContextMenu(true);
+  };
+
+  const handleDelete = () => {
+    deleteKnowledge(item.id);
+    setShowContextMenu(false);
+  };
+
+  const handleOpen = () => {
+    navigate(`/note/${item.id}`);
+    setShowContextMenu(false);
+  };
+
+  const handleTogglePin = () => {
+    if (isPinned) {
+      unpinCard(item.id);
+    } else {
+      pinCard({ id: item.id, title: item.title, summary: item.summary });
+    }
+    setShowContextMenu(false);
+  };
+
   return (
     <>
       <article
@@ -56,6 +84,7 @@ export function KnowledgeCard({ item }: Props) {
         draggable
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onContextMenu={handleContextMenu}
       >
         <Link
           to={`/note/${item.id}`}
@@ -67,6 +96,8 @@ export function KnowledgeCard({ item }: Props) {
             <div className="flex items-center gap-3">
               {itemType === 'concept' ? (
                 <Lightbulb className="w-3.5 h-3.5 text-accent" />
+              ) : itemType === 'canvas' ? (
+                <Palette className="w-3.5 h-3.5 text-accent" />
               ) : (
                 <FileText className="w-3.5 h-3.5" />
               )}
@@ -120,6 +151,37 @@ export function KnowledgeCard({ item }: Props) {
         </Link>
       </article>
 
+      {showContextMenu && (
+        <>
+          <div className="fixed inset-0 z-50" onClick={() => setShowContextMenu(false)} />
+          <div
+            className="fixed z-[60] bg-bg-primary border border-border-subtle rounded-lg shadow-xl py-1 min-w-[120px]"
+            style={{ left: contextMenuPos.x, top: contextMenuPos.y }}
+          >
+            <button
+              onClick={handleOpen}
+              className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
+            >
+              <ArrowUpRight className="w-4 h-4" />
+              {language === 'zh' ? '打开' : 'Open'}
+            </button>
+            <button
+              onClick={handleTogglePin}
+              className="w-full px-4 py-2 text-left text-sm hover:bg-bg-secondary transition-colors flex items-center gap-2"
+            >
+              {isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+              {isPinned ? (language === 'zh' ? '取消固定' : 'Unpin') : (language === 'zh' ? '固定' : 'Pin')}
+            </button>
+            <button
+              onClick={handleDelete}
+              className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              {language === 'zh' ? '删除' : 'Delete'}
+            </button>
+          </div>
+        </>
+      )}
     </>
   );
 }

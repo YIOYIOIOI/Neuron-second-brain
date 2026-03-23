@@ -5,11 +5,12 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Mention from '@tiptap/extension-mention';
 import UnderlineExtension from '@tiptap/extension-underline';
 import HighlightExtension from '@tiptap/extension-highlight';
+import Dropcursor from '@tiptap/extension-dropcursor';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useRef, forwardRef, useImperativeHandle, useState } from 'react';
 import { SlashMenu } from './SlashMenu';
 import tippy, { Instance as TippyInstance } from 'tippy.js';
-import { Heading1, Heading2, Heading3, Type, List, Code } from 'lucide-react';
+import { Heading1, Heading2, Heading3, Type, List, Code, GripVertical } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../Navbar';
 import 'tippy.js/dist/tippy.css';
@@ -75,7 +76,7 @@ const MentionList = forwardRef<{ onKeyDown: (props: { event: KeyboardEvent }) =>
               index === selectedIndex ? 'bg-bg-secondary' : 'hover:bg-bg-secondary/50'
             )}
           >
-            <div className="font-medium truncate">{item.title}</div>
+            <div className="font-medium truncate text-text-primary">{item.title}</div>
           </button>
         ))}
       </div>
@@ -165,6 +166,7 @@ export function AdvancedBlockEditor({ content, onChange, placeholder = "Type '/'
       StarterKit.configure({
         codeBlock: false,
         heading: { levels: [1, 2, 3] },
+        dropcursor: false,
       }),
       CodeBlockLowlight.configure({
         lowlight,
@@ -174,6 +176,10 @@ export function AdvancedBlockEditor({ content, onChange, placeholder = "Type '/'
       }),
       UnderlineExtension,
       HighlightExtension,
+      Dropcursor.configure({
+        color: 'var(--theme-accent)',
+        width: 2,
+      }),
       Placeholder.configure({ placeholder }),
       Mention.configure({
         HTMLAttributes: {
@@ -345,10 +351,14 @@ export function AdvancedBlockEditor({ content, onChange, placeholder = "Type '/'
           border-radius: 4px;
           border: 1px solid transparent;
           transition: all 0.15s ease;
+          position: relative;
         }
         .advanced-block-editor .ProseMirror > *:hover {
           background-color: var(--theme-bg-secondary);
           border-color: var(--theme-border-subtle);
+        }
+        .advanced-block-editor .ProseMirror > *:active::before {
+          cursor: grabbing;
         }
         .advanced-block-editor .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);

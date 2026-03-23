@@ -31,7 +31,11 @@ export interface KnowledgeItem {
   accessCount?: number;
   isMilestone?: boolean;
   folderId?: string | null;
-  type?: 'note' | 'concept';
+  type?: 'note' | 'concept' | 'canvas';
+  canvasData?: {
+    nodes: any[];
+    edges: any[];
+  };
 }
 
 export interface ChatMessage {

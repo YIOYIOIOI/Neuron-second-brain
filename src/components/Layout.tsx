@@ -18,8 +18,6 @@ export function Layout() {
     return <Navigate to="/login" replace />;
   }
 
-  const isWritingMode = location.pathname === '/writing';
-
   const leftWidth = user ? (sidebarCollapsed ? 64 : 220) : 0;
   const rightWidth = user && isAgentOpen && isAgentSidebar ? (isAgentSidebarCollapsed ? 0 : 300) : 0;
 

@@ -38,7 +38,6 @@ export function TopBar() {
     if (path.includes('/dashboard')) return t('dashboard');
     if (path.includes('/timeline')) return t('timeline');
     if (path.includes('/graph')) return t('graph');
-    if (path.includes('/writing')) return t('writingMode');
     if (path.includes('/review')) return t('reviewTitle');
     if (path.includes('/capture')) return t('captureTitle');
     if (path.includes('/chat')) return t('assistantTitle');

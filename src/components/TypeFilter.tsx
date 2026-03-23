@@ -1,6 +1,6 @@
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { FileText, Lightbulb, Grid3x3 } from 'lucide-react';
+import { FileText, Lightbulb, Grid3x3, Palette } from 'lucide-react';
 
 export function TypeFilter() {
   const { knowledgeTypeFilter, setKnowledgeTypeFilter } = useStore();
@@ -10,6 +10,7 @@ export function TypeFilter() {
     { value: 'all' as const, icon: Grid3x3, labelEn: 'All', labelZh: '全部' },
     { value: 'note' as const, icon: FileText, labelEn: 'Notes', labelZh: '笔记' },
     { value: 'concept' as const, icon: Lightbulb, labelEn: 'Concepts', labelZh: '知识点' },
+    { value: 'canvas' as const, icon: Palette, labelEn: 'Canvas', labelZh: '画布' },
   ];
 
   return (

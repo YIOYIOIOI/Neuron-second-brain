@@ -61,7 +61,7 @@ export const SlashMenu = forwardRef<{ onKeyDown: (props: { event: KeyboardEvent 
             >
               <Icon className="w-4 h-4 text-text-secondary" />
               <div className="flex-1">
-                <div className="text-sm font-medium">{item.title}</div>
+                <div className="text-sm font-medium text-text-primary">{item.title}</div>
                 <div className="text-xs text-text-secondary">{item.description}</div>
               </div>
             </button>

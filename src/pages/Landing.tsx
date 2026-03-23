@@ -34,7 +34,7 @@ const features = [
     descZh: 'AI 驱动',
     detailEn: 'Leverage AI to synthesize your knowledge into new ideas and insights. Generate drafts, find relevant connections, and create new content by combining your existing knowledge. Transform scattered notes into coherent narratives.',
     detailZh: '利用 AI 将你的知识整合成新的想法和洞见。生成草稿，找到相关联系，通过组合现有知识创造新内容。将零散的笔记转化为连贯的叙述。',
-    link: '/writing'
+    link: '/capture?mode=create'
   },
   {
     icon: BookOpen,

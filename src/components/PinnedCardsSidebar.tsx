@@ -14,17 +14,23 @@ interface PinnedNode {
 
 export function PinnedCardsSidebar() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { pinnedCards, unpinCard, setEditorState } = useStore();
+  const { t, language } = useTranslation();
+  const { pinnedCards, unpinCard, addKnowledge } = useStore();
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const handleWriteWithPinned = () => {
-    if (pinnedCards.length === 0) return;
-    const content = pinnedCards.map((node, idx) =>
-      `${idx + 1}. **${node.title}**: ${node.summary}`
-    ).join('\n\n');
-    setEditorState({ content, isOpen: true });
-    navigate('/writing');
+    const newId = Date.now().toString();
+    const newItem = {
+      id: newId,
+      title: language === 'zh' ? '无标题' : 'Untitled',
+      content: '',
+      summary: language === 'zh' ? '新建知识' : 'New knowledge item',
+      tags: [],
+      createdAt: new Date().toISOString(),
+      relatedIds: [],
+    };
+    addKnowledge(newItem);
+    navigate(`/note/${newId}?edit=true`);
   };
 
   if (pinnedCards.length === 0) {
@@ -75,7 +81,12 @@ export function PinnedCardsSidebar() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="p-3 bg-bg-secondary/50 rounded-lg border border-border-subtle hover:border-text-secondary/30 transition-colors group"
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData('text/plain', `**${node.title}**: ${node.summary}`);
+                e.dataTransfer.effectAllowed = 'copy';
+              }}
+              className="p-3 bg-bg-secondary/50 rounded-lg border border-border-subtle hover:border-text-secondary/30 transition-colors group cursor-move"
             >
               <div className="flex items-start justify-between mb-2">
                 <h4

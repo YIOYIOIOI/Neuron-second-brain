@@ -18,7 +18,7 @@ interface StoreState {
   activeFolderId: string | null;
   pinnedCards: Array<{ id: string; title: string; summary: string }>;
   smoothCursor: boolean;
-  knowledgeTypeFilter: 'all' | 'note' | 'concept';
+  knowledgeTypeFilter: 'all' | 'note' | 'concept' | 'canvas';
   sortBy: 'recent' | 'oldest' | 'title-asc' | 'title-desc';
   reviewDecks: ReviewDeck[];
   reviewCards: ReviewCard[];
@@ -58,7 +58,7 @@ interface StoreState {
   pinCard: (card: { id: string; title: string; summary: string }) => void;
   unpinCard: (id: string) => void;
   setSmoothCursor: (enabled: boolean) => void;
-  setKnowledgeTypeFilter: (filter: 'all' | 'note' | 'concept') => void;
+  setKnowledgeTypeFilter: (filter: 'all' | 'note' | 'concept' | 'canvas') => void;
   setSortBy: (sort: 'recent' | 'oldest' | 'title-asc' | 'title-desc') => void;
   addReviewDeck: (deck: ReviewDeck) => void;
   deleteReviewDeck: (id: string) => void;

@@ -10,12 +10,13 @@ import LandingNew from './pages/LandingNew';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Detail from './pages/Detail';
+import Notes from './pages/Notes';
+import Canvas from './pages/Canvas';
 import Chat from './pages/Chat';
 import Graph from './pages/Graph';
 import Capture from './pages/Capture';
 import Review from './pages/Review';
 import Timeline from './pages/Timeline';
-import Writing from './pages/Writing';
 import Profile from './pages/Profile';
 import Agent from './pages/Agent';
 
@@ -48,12 +49,13 @@ function AnimatedRoutes() {
         <Route path="/" element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="timeline" element={<Timeline />} />
+          <Route path="note" element={<Notes />} />
           <Route path="note/:id" element={<Detail />} />
+          <Route path="note/canvas/:id" element={<Canvas />} />
           <Route path="chat" element={<Chat />} />
           <Route path="graph" element={<Graph />} />
           <Route path="capture" element={<Capture />} />
           <Route path="review" element={<Review />} />
-          <Route path="writing" element={<Writing />} />
           <Route path="agent" element={<Agent />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Profile />} />
