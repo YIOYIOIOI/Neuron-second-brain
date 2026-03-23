@@ -243,36 +243,22 @@ export function AdvancedBlockEditor({ content, onChange, placeholder = "Type '/'
   };
 
   useEffect(() => {
+    if (!editor) return;
+
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const editorEl = editorRef.current;
 
       if (showAIDialog && !target.closest('.ai-dialog-container')) {
         setShowAIDialog(false);
         setShowAIActions(false);
         setAiPrompt('');
-        return;
-      }
-
-      if (editorEl && !editorEl.contains(target) && !target.closest('.ai-dialog-container')) {
         setBubbleMenuPos(null);
-        setShowTextType(false);
-        setShowColor(false);
-        if (showAIDialog) {
-          setShowAIDialog(false);
-          setShowAIActions(false);
-          setAiPrompt('');
-        }
       }
     };
 
-    if (showAIDialog || bubbleMenuPos) {
-      setTimeout(() => {
-        document.addEventListener('click', handleClickOutside);
-      }, 0);
-    }
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [showAIDialog, bubbleMenuPos]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [editor, showAIDialog]);
 
   const handleAIAction = (action: string) => {
     if (!editor) return;
@@ -337,14 +323,31 @@ export function AdvancedBlockEditor({ content, onChange, placeholder = "Type '/'
     if (!editor) return;
 
     let isMouseDown = false;
+    let mouseDownTarget: HTMLElement | null = null;
 
-    const handleMouseDown = () => {
+    const handleMouseDown = (e: MouseEvent) => {
       isMouseDown = true;
-      setBubbleMenuPos(null);
+      mouseDownTarget = e.target as HTMLElement;
+      const editorEl = editorRef.current;
+
+      // Only hide bubble menu if clicking outside editor and not on bubble menu itself
+      if (editorEl && !editorEl.contains(mouseDownTarget) && !mouseDownTarget.closest('.bubble-menu-container')) {
+        setBubbleMenuPos(null);
+        setShowTextType(false);
+        setShowColor(false);
+      }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
       isMouseDown = false;
+      const target = e.target as HTMLElement;
+      const editorEl = editorRef.current;
+
+      // Don't show bubble menu if mouse up is outside editor
+      if (editorEl && !editorEl.contains(target)) {
+        return;
+      }
+
       setTimeout(() => {
         const { state } = editor.view;
         const { from, to } = state.selection;
@@ -531,7 +534,7 @@ export function AdvancedBlockEditor({ content, onChange, placeholder = "Type '/'
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
-            className="absolute z-50"
+            className="absolute z-50 bubble-menu-container"
             style={{ left: bubbleMenuPos.x, top: bubbleMenuPos.y }}
           >
             <div className="bg-bg-primary border border-border-subtle rounded-lg shadow-xl p-1.5 flex flex-col gap-1">
