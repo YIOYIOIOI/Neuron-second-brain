@@ -840,9 +840,8 @@ export default function Detail() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
-    </div>
-    <PinnedCardsSidebar />
+      </motion.div>
+      <PinnedCardsSidebar />
     </>
   );
 }
