@@ -265,6 +265,13 @@ export default function Detail() {
     }
   };
 
+  const handleTagBlur = () => {
+    if (newTag.trim() && !editTags.includes(newTag.trim())) {
+      setEditTags([...editTags, newTag.trim()]);
+    }
+    setNewTag('');
+  };
+
   const removeTag = (tagToRemove: string) => {
     setEditTags(editTags.filter(tag => tag !== tagToRemove));
   };
@@ -516,6 +523,7 @@ export default function Detail() {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={handleAddTag}
+                onBlur={handleTagBlur}
                 placeholder={t('addTag')}
                 className="text-xs uppercase tracking-wider font-medium bg-transparent border-b border-border-subtle focus:outline-none focus:border-text-primary w-full mt-2 py-1"
               />

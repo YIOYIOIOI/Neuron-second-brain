@@ -17,29 +17,42 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, X, Save } from 'lucide-react';
+import { Search, X, ArrowLeft, Copy, Trash2, Lock, Unlock } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
 import { useParams, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { PinnedCardsSidebar } from '../components/PinnedCardsSidebar';
 
 // Custom Node Component
 function TextNode({ data, selected }: any) {
   const [isEditing, setIsEditing] = useState(data.autoEdit || false);
   const [text, setText] = useState(data.label);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
-      className={`px-4 py-3 bg-bg-primary rounded-lg shadow-lg border-2 transition-all ${
-        selected ? 'border-accent scale-105' : 'border-border-subtle hover:scale-[1.02]'
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      className={`px-5 py-4 rounded-2xl shadow-lg border-2 transition-all backdrop-blur-md ${
+        selected ? 'border-accent shadow-2xl' : 'border-transparent hover:shadow-xl'
       }`}
-      style={{ minWidth: 200, maxWidth: 300 }}
+      style={{
+        minWidth: 200,
+        maxWidth: 300,
+        background: 'rgba(255, 255, 255, 0.85)',
+        boxShadow: selected ? '0 20px 40px rgba(0,0,0,0.12)' : '0 10px 30px rgba(0,0,0,0.05)',
+        fontFamily: 'Inter, system-ui, sans-serif'
+      }}
       onDoubleClick={() => setIsEditing(true)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <Handle type="target" position={Position.Top} className="w-3 h-3" />
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3" />
-      <Handle type="target" position={Position.Left} className="w-3 h-3" />
-      <Handle type="source" position={Position.Right} className="w-3 h-3" />
+      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle type="target" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
       {isEditing ? (
         <textarea
           autoFocus
@@ -49,40 +62,88 @@ function TextNode({ data, selected }: any) {
             setIsEditing(false);
             data.onChange?.(text);
           }}
-          className="w-full bg-transparent outline-none resize-none text-sm"
+          className="w-full bg-transparent outline-none resize-none text-gray-800"
+          style={{ fontSize: '14px', lineHeight: '1.6' }}
           rows={3}
         />
       ) : (
-        <div className="text-sm whitespace-pre-wrap">{text}</div>
+        <div className="text-gray-800 whitespace-pre-wrap" style={{ fontSize: '14px', lineHeight: '1.6' }}>{text}</div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
 // Knowledge Node Component
 function KnowledgeNode({ data, selected }: any) {
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [title, setTitle] = useState(data.title);
+  const [summary, setSummary] = useState(data.summary);
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div
-      className={`w-72 bg-bg-primary rounded-xl shadow-xl border-2 transition-all overflow-hidden ${
-        selected ? 'border-accent scale-105' : 'border-border-subtle hover:scale-[1.02]'
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      className={`w-72 rounded-2xl shadow-lg border-2 transition-all overflow-hidden backdrop-blur-md ${
+        selected ? 'border-accent shadow-2xl' : 'border-transparent hover:shadow-xl'
       }`}
+      style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        boxShadow: selected ? '0 20px 40px rgba(0,0,0,0.12)' : '0 10px 30px rgba(0,0,0,0.05)',
+        fontFamily: 'Inter, system-ui, sans-serif'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <Handle type="target" position={Position.Top} className="w-3 h-3" />
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3" />
-      <Handle type="target" position={Position.Left} className="w-3 h-3" />
-      <Handle type="source" position={Position.Right} className="w-3 h-3" />
+      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle type="target" position={Position.Left} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
+      <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-gray-400 !border-2 !border-white" style={{ opacity: isHovered ? 1 : 0 }} />
 
-      <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-bg-secondary/30">
-        <div className="w-6 h-6" />
+      <div className="p-5 pb-3" onDoubleClick={() => setIsEditingTitle(true)}>
+        {isEditingTitle ? (
+          <input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={() => {
+              setIsEditingTitle(false);
+              data.onTitleChange?.(title);
+            }}
+            className="w-full bg-transparent outline-none text-base font-semibold text-gray-800"
+            style={{ lineHeight: '1.5' }}
+          />
+        ) : (
+          <h3 className="text-base font-semibold tracking-tight line-clamp-2 text-gray-800" style={{ lineHeight: '1.5' }}>{title}</h3>
+        )}
       </div>
 
-      <div className="p-4">
-        <h3 className="text-lg font-serif tracking-tight mb-3 line-clamp-2">{data.title}</h3>
-        <p className="text-sm text-text-secondary leading-relaxed line-clamp-3">
-          {data.summary}
-        </p>
+      <div className="border-t border-gray-200/50" />
+
+      <div className="p-5 pt-3" onDoubleClick={() => setIsEditingSummary(true)}>
+        {isEditingSummary ? (
+          <textarea
+            autoFocus
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            onBlur={() => {
+              setIsEditingSummary(false);
+              data.onSummaryChange?.(summary);
+            }}
+            className="w-full bg-transparent outline-none resize-none text-sm text-gray-500"
+            style={{ lineHeight: '1.6' }}
+            rows={3}
+          />
+        ) : (
+          <p className="text-sm leading-relaxed line-clamp-3 text-gray-500" style={{ lineHeight: '1.6' }}>
+            {summary}
+          </p>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -100,12 +161,10 @@ export default function Canvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSaveModal, setShowSaveModal] = useState(false);
-  const [saveTitle, setSaveTitle] = useState('');
-  const [saveSummary, setSaveSummary] = useState('');
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [panOnDrag, setPanOnDrag] = useState(true);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId?: string } | null>(null);
 
   // Load existing canvas data
   useEffect(() => {
@@ -114,15 +173,13 @@ export default function Canvas() {
       if (item?.canvasData) {
         setNodes(item.canvasData.nodes || []);
         setEdges(item.canvasData.edges || []);
-        setSaveTitle(item.title);
-        setSaveSummary(item.summary);
       }
     }
   }, [id, knowledgeList, setNodes, setEdges]);
 
   // Auto-save canvas
   useEffect(() => {
-    if (!id || nodes.length === 0) return;
+    if (!id) return;
     const timer = setTimeout(() => {
       const existing = knowledgeList.find(k => k.id === id);
       if (existing) {
@@ -130,13 +187,34 @@ export default function Canvas() {
           canvasData: { nodes, edges },
           updatedAt: new Date().toISOString(),
         });
+      } else if (nodes.length > 0 || edges.length > 0) {
+        addKnowledge({
+          id,
+          title: language === 'zh' ? '无标题画布' : 'Untitled Canvas',
+          content: '',
+          summary: language === 'zh' ? '画布' : 'Canvas',
+          tags: ['canvas'],
+          createdAt: new Date().toISOString(),
+          relatedIds: [],
+          type: 'canvas',
+          canvasData: { nodes, edges },
+        });
       }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [nodes, edges, id, knowledgeList, updateKnowledge]);
+  }, [nodes, edges, id, knowledgeList, updateKnowledge, addKnowledge, language]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', animated: true }, eds)),
+    (params: Connection) => setEdges((eds) => addEdge({
+      ...params,
+      type: 'smoothstep',
+      animated: false,
+      style: {
+        stroke: 'rgba(0,0,0,0.15)',
+        strokeWidth: 2,
+        strokeDasharray: '5,5'
+      }
+    }, eds)),
     [setEdges]
   );
 
@@ -185,13 +263,31 @@ export default function Canvas() {
     });
 
     const newNode: Node = {
-      id: `knowledge-${item.id}`,
+      id: `knowledge-${item.id}-${Date.now()}`,
       type: 'knowledgeNode',
       position,
       data: {
         title: item.title,
         summary: item.summary,
         knowledgeId: item.id,
+        onTitleChange: (newTitle: string) => {
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === newNode.id
+                ? { ...node, data: { ...node.data, title: newTitle } }
+                : node
+            )
+          );
+        },
+        onSummaryChange: (newSummary: string) => {
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === newNode.id
+                ? { ...node, data: { ...node.data, summary: newSummary } }
+                : node
+            )
+          );
+        },
       },
     };
 
@@ -206,38 +302,40 @@ export default function Canvas() {
       item.summary.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSave = () => {
-    if (!saveTitle.trim()) {
-      toast.error(language === 'zh' ? '请输入标题' : 'Please enter title');
-      return;
-    }
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    setContextMenu({ x: event.clientX, y: event.clientY, nodeId: node.id });
+  }, []);
 
-    const canvasItem = {
-      id: id || Date.now().toString(),
-      title: saveTitle,
-      content: '',
-      summary: saveSummary,
-      tags: ['canvas'],
-      createdAt: new Date().toISOString(),
-      relatedIds: [],
-      type: 'canvas' as const,
-      canvasData: {
-        nodes: nodes,
-        edges: edges,
-      },
-    };
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu({ x: event.clientX, y: event.clientY });
+  }, []);
 
-    const existing = knowledgeList.find(k => k.id === id);
-    if (existing) {
-      updateKnowledge(id!, canvasItem);
-      toast.success(language === 'zh' ? '保存成功' : 'Saved');
-    } else {
-      addKnowledge(canvasItem);
-      toast.success(language === 'zh' ? '保存成功' : 'Saved');
-      navigate(`/note/canvas/${canvasItem.id}`);
-    }
-    setShowSaveModal(false);
+  const handleDeleteNode = (nodeId: string) => {
+    setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+    setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+    setContextMenu(null);
   };
+
+  const handleDuplicateNode = (nodeId: string) => {
+    const node = nodes.find((n) => n.id === nodeId);
+    if (node) {
+      const newNode = {
+        ...node,
+        id: `${node.type}-${Date.now()}`,
+        position: { x: node.position.x + 50, y: node.position.y + 50 },
+      };
+      setNodes((nds) => [...nds, newNode]);
+    }
+    setContextMenu(null);
+  };
+
+  useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
 
   return (
     <div className="w-full h-screen" ref={reactFlowWrapper}>
@@ -249,6 +347,8 @@ export default function Canvas() {
         onConnect={onConnect}
         onInit={setReactFlowInstance}
         onPaneClick={onPaneClick}
+        onNodeContextMenu={onNodeContextMenu}
+        onPaneContextMenu={onPaneContextMenu}
         nodeTypes={nodeTypes}
         minZoom={0.5}
         maxZoom={2}
@@ -259,11 +359,15 @@ export default function Canvas() {
         selectionMode="partial"
         multiSelectionKeyCode="Shift"
         deleteKeyCode="Delete"
-        className="bg-bg-secondary"
+        style={{ background: '#f7f7f5' }}
         defaultEdgeOptions={{
           type: 'smoothstep',
-          animated: true,
-          style: { stroke: 'var(--theme-text-secondary)', strokeWidth: 2, opacity: 0.6 },
+          animated: false,
+          style: {
+            stroke: 'rgba(0,0,0,0.15)',
+            strokeWidth: 2,
+            strokeDasharray: '5,5'
+          },
         }}
         onKeyDown={(e) => {
           if (e.code === 'Space') {
@@ -276,29 +380,38 @@ export default function Canvas() {
           }
         }}
       >
-        <Background gap={20} size={1} color="var(--theme-border-subtle)" />
-        <Controls />
+        <Background
+          gap={20}
+          size={1.5}
+          color="rgba(0,0,0,0.4)"
+        />
+        <Controls className="!bg-white/80 !backdrop-blur-md !border-gray-200 !shadow-lg !rounded-xl" position="bottom-left" />
         <MiniMap
-          nodeColor={(node) => (node.type === 'knowledgeNode' ? 'var(--theme-accent)' : '#fff')}
-          className="bg-bg-primary border border-border-subtle"
+          nodeColor={(node) => (node.type === 'knowledgeNode' ? '#3182CE' : '#718096')}
+          className="!bg-white/80 !backdrop-blur-md !border-gray-200 !shadow-lg !rounded-xl"
+          maskColor="rgba(0,0,0,0.05)"
+          position="top-left"
+          style={{ left: 20, top: 80 }}
         />
         <Panel position="top-right" className="m-4 flex gap-2">
           <button
-            onClick={() => setShowSaveModal(true)}
-            className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-colors flex items-center gap-2"
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-white/80 backdrop-blur-md text-gray-800 rounded-xl hover:bg-white transition-all shadow-lg border border-gray-200 flex items-center gap-2"
+            style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '14px' }}
           >
-            <Save className="w-4 h-4" />
-            {language === 'zh' ? '保存' : 'Save'}
+            <ArrowLeft className="w-4 h-4" />
+            {language === 'zh' ? '返回' : 'Back'}
           </button>
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="px-4 py-2 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-accent text-white rounded-xl hover:opacity-90 transition-all shadow-lg flex items-center gap-2"
+            style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '14px' }}
           >
             <Search className="w-4 h-4" />
             {language === 'zh' ? '插入知识' : 'Insert Knowledge'}
           </button>
         </Panel>
-        <Panel position="top-left" className="m-4 text-xs text-text-secondary bg-bg-primary/80 px-3 py-2 rounded-lg">
+        <Panel position="top-left" className="m-4 text-xs bg-white/80 backdrop-blur-md px-4 py-2 rounded-xl shadow-lg border border-gray-200" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888' }}>
           {language === 'zh' ? '双击创建 · 拖动连线 · Shift多选 · 空格平移' : 'Double-click to create · Drag to connect · Shift to multi-select · Space to pan'}
         </Panel>
       </ReactFlow>
@@ -307,105 +420,99 @@ export default function Canvas() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center"
           onClick={() => setShowSearch(false)}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-bg-primary rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden border border-gray-200/50"
             onClick={(e) => e.stopPropagation()}
+            style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
           >
-            <div className="p-4 border-b border-border-subtle flex items-center gap-3">
-              <Search className="w-5 h-5 text-text-secondary" />
+            <div className="p-5 border-b border-gray-200/50 flex items-center gap-3">
+              <Search className="w-5 h-5 text-gray-400" />
               <input
                 autoFocus
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={language === 'zh' ? '搜索知识...' : 'Search knowledge...'}
-                className="flex-1 bg-transparent outline-none"
+                className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400"
+                style={{ fontSize: '15px' }}
               />
-              <button onClick={() => setShowSearch(false)}>
-                <X className="w-5 h-5" />
+              <button onClick={() => setShowSearch(false)} className="hover:bg-gray-100 p-1.5 rounded-lg transition-colors">
+                <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[60vh] p-4 space-y-2">
+            <div className="overflow-y-auto max-h-[60vh] p-3 space-y-1.5">
               {filteredKnowledge.map((item) => (
-                <button
+                <motion.button
                   key={item.id}
+                  whileHover={{ scale: 1.01 }}
                   onClick={() => addKnowledgeNode(item)}
-                  className="w-full text-left p-3 rounded-lg hover:bg-bg-secondary transition-colors"
+                  className="w-full text-left p-4 rounded-xl hover:bg-gray-100/60 transition-all"
                 >
-                  <div className="font-medium mb-1">{item.title}</div>
-                  <div className="text-sm text-text-secondary line-clamp-2">{item.summary}</div>
-                </button>
+                  <div className="font-semibold mb-1.5 text-gray-800" style={{ fontSize: '14px' }}>{item.title}</div>
+                  <div className="text-sm text-gray-500 line-clamp-2" style={{ fontSize: '13px' }}>{item.summary}</div>
+                </motion.button>
               ))}
             </div>
           </motion.div>
         </motion.div>
       )}
 
-      {showSaveModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
-          onClick={() => setShowSaveModal(false)}
-        >
+      {/* Context Menu */}
+      <AnimatePresence>
+        {contextMenu && (
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-bg-primary rounded-xl shadow-2xl w-full max-w-md p-6"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed bg-bg-primary border border-border-subtle rounded-lg shadow-xl overflow-hidden z-[70] min-w-[160px]"
+            style={{ left: contextMenu.x, top: contextMenu.y }}
           >
-            <h3 className="text-xl font-serif mb-4">
-              {language === 'zh' ? '保存画布' : 'Save Canvas'}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm mb-2">
-                  {language === 'zh' ? '标题' : 'Title'}
-                </label>
-                <input
-                  autoFocus
-                  type="text"
-                  value={saveTitle}
-                  onChange={(e) => setSaveTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-border-subtle rounded-lg bg-transparent outline-none focus:border-accent"
-                  placeholder={language === 'zh' ? '输入标题...' : 'Enter title...'}
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-2">
-                  {language === 'zh' ? '描述' : 'Description'}
-                </label>
-                <textarea
-                  value={saveSummary}
-                  onChange={(e) => setSaveSummary(e.target.value)}
-                  className="w-full px-3 py-2 border border-border-subtle rounded-lg bg-transparent outline-none focus:border-accent resize-none"
-                  rows={3}
-                  placeholder={language === 'zh' ? '输入描述...' : 'Enter description...'}
-                />
-              </div>
-              <div className="flex gap-3 justify-end">
+            {contextMenu.nodeId ? (
+              <>
                 <button
-                  onClick={() => setShowSaveModal(false)}
-                  className="px-4 py-2 rounded-lg hover:bg-bg-secondary transition-colors"
+                  onClick={() => handleDuplicateNode(contextMenu.nodeId!)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors"
                 >
-                  {language === 'zh' ? '取消' : 'Cancel'}
+                  <Copy className="w-4 h-4" />
+                  {language === 'zh' ? '复制' : 'Duplicate'}
                 </button>
                 <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-colors"
+                  onClick={() => handleDeleteNode(contextMenu.nodeId!)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-red-50 hover:text-red-600 transition-colors"
                 >
-                  {language === 'zh' ? '保存' : 'Save'}
+                  <Trash2 className="w-4 h-4" />
+                  {language === 'zh' ? '删除' : 'Delete'}
                 </button>
-              </div>
-            </div>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => { setShowSearch(true); setContextMenu(null); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors"
+                >
+                  <Search className="w-4 h-4" />
+                  {language === 'zh' ? '插入知识' : 'Insert Knowledge'}
+                </button>
+                <button
+                  onClick={() => setContextMenu(null)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg-secondary transition-colors"
+                >
+                  <Lock className="w-4 h-4" />
+                  {language === 'zh' ? '锁定画布' : 'Lock Canvas'}
+                </button>
+              </>
+            )}
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
+
+      <PinnedCardsSidebar />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { useTranslation } from '../hooks/useTranslation';
-import { ChevronRight, ChevronLeft, PinOff, PenTool } from 'lucide-react';
+import { ChevronRight, ChevronLeft, PinOff, PenTool, FileText, Palette } from 'lucide-react';
 import { cn } from './Navbar';
 
 interface PinnedNode {
@@ -17,8 +17,9 @@ export function PinnedCardsSidebar() {
   const { t, language } = useTranslation();
   const { pinnedCards, unpinCard, addKnowledge } = useStore();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
 
-  const handleWriteWithPinned = () => {
+  const handleCreateNote = () => {
     const newId = Date.now().toString();
     const newItem = {
       id: newId,
@@ -31,6 +32,13 @@ export function PinnedCardsSidebar() {
     };
     addKnowledge(newItem);
     navigate(`/note/${newId}?edit=true`);
+    setShowCreateMenu(false);
+  };
+
+  const handleCreateCanvas = () => {
+    const newId = Date.now().toString();
+    navigate(`/note/canvas/${newId}`);
+    setShowCreateMenu(false);
   };
 
   if (pinnedCards.length === 0) {
@@ -108,14 +116,39 @@ export function PinnedCardsSidebar() {
         </AnimatePresence>
       </div>
 
-      <div className="p-4 border-t border-border-subtle">
+      <div className="p-4 border-t border-border-subtle relative">
         <button
-          onClick={handleWriteWithPinned}
+          onClick={() => setShowCreateMenu(!showCreateMenu)}
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-text-primary text-bg-primary rounded-lg hover:bg-text-secondary transition-colors text-sm font-medium"
         >
           <PenTool className="w-4 h-4" />
           {t('writeWithPinned')}
         </button>
+        <AnimatePresence>
+          {showCreateMenu && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="absolute bottom-full left-4 right-4 mb-2 bg-bg-primary border border-border-subtle rounded-lg shadow-xl overflow-hidden"
+            >
+              <button
+                onClick={handleCreateNote}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-bg-secondary transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                {language === 'zh' ? '创建笔记' : 'Create Note'}
+              </button>
+              <button
+                onClick={handleCreateCanvas}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-bg-secondary transition-colors"
+              >
+                <Palette className="w-4 h-4" />
+                {language === 'zh' ? '创建画布' : 'Create Canvas'}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
