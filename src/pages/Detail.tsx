@@ -432,7 +432,7 @@ export default function Detail() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="sticky bg-bg-secondary/95 backdrop-blur-md z-[100] py-3 md:py-4 px-4 md:px-8 lg:px-16 mb-6 md:mb-8 flex justify-between items-center border border-border-subtle shadow-lg"
         style={{
-          top: scrollY > 50 ? '72px' : '0',
+          top: scrollY > 50 ? '72px' : '56px',
           marginTop: scrollY > 50 ? '8px' : '0',
           marginBottom: scrollY > 50 ? '16px' : '0',
           marginLeft: scrollY > 50 ? 'auto' : '0',
