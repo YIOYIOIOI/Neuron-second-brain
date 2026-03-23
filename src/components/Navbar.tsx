@@ -288,12 +288,10 @@ export function Navbar() {
         />
       </div>
 
-      {!sidebarCollapsed && (
-        <div
-          onMouseDown={() => setIsResizing(true)}
-          className="absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors"
-        />
-      )}
+      <div
+        onMouseDown={() => setIsResizing(true)}
+        className="absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-accent/50 transition-colors"
+      />
     </motion.nav>
   );
 }

@@ -136,7 +136,7 @@ export const mockKnowledgeBase: KnowledgeItem[] = [
 
 <p>现在开始创建你的第一个笔记吧！点击左侧的"笔记"按钮开始。</p>`,
     tags: ['教程', '新手指南', '功能介绍'],
-    createdAt: '2024-01-01T00:00:00Z',
+    createdAt: '2026-03-23T00:00:00Z',
     relatedIds: [],
     references: [],
     backlinks: [],
